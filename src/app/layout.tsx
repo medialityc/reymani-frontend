@@ -10,6 +10,8 @@ import '@/app/globals.css'
 // Generated Icon CSS Imports
 import '@assets/iconify-icons/generated-icons.css'
 
+import { AuthProvider } from '@/context/AuthContext'
+
 export const metadata = {
   title: 'Demo: Materio - NextJS Dashboard Free',
   description:
@@ -22,7 +24,9 @@ const RootLayout = ({ children }: ChildrenType) => {
 
   return (
     <html id='__next' dir={direction}>
-      <body className='flex is-full min-bs-full flex-auto flex-col'>{children}</body>
+      <body className='flex is-full min-bs-full flex-auto flex-col'>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   )
 }

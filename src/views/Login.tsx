@@ -2,7 +2,6 @@
 
 // React Imports
 import { useState } from 'react'
-import type { FormEvent } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -15,12 +14,21 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
-import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
 
 // Type Imports
+import { Checkbox, FormControlLabel } from '@mui/material'
+
+// Form Imports
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
+import LoadingButton from '@mui/lab/LoadingButton'
+
+import { useAuth } from '@/context/AuthContext'
+
+import { login as authLogin } from '@/services/AuthService'
+
 import type { Mode } from '@core/types'
 
 // Component Imports
@@ -33,9 +41,18 @@ import themeConfig from '@configs/themeConfig'
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
 
+// Form Imports
+
+const schema = z.object({
+  usernameOrPhone: z.string().min(1, 'El nombre de usuario es requerido'),
+  password: z.string().min(1, 'La contraseña es requerida')
+})
+
 const Login = ({ mode }: { mode: Mode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [loading, setLoading] = useState(false)
 
   // Vars
   const darkImg = '/images/pages/auth-v1-mask-dark.png'
@@ -44,12 +61,30 @@ const Login = ({ mode }: { mode: Mode }) => {
   // Hooks
   const router = useRouter()
   const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const { login } = useAuth()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm({
+    resolver: zodResolver(schema)
+  })
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    router.push('/')
+  const onSubmit = async (data: any) => {
+    try {
+      setLoading(true)
+      const response = await authLogin(data)
+
+      login(response)
+      router.push('/')
+    } catch (error: any) {
+      setErrorMessage(error.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -61,16 +96,26 @@ const Login = ({ mode }: { mode: Mode }) => {
           </Link>
           <div className='flex flex-col gap-5'>
             <div>
-              <Typography variant='h4'>{`Welcome to ${themeConfig.templateName}!👋🏻`}</Typography>
-              <Typography className='mbs-1'>Please sign-in to your account and start the adventure</Typography>
+              <Typography variant='h4'>{`¡Bienvenido a ${themeConfig.templateName}!`}</Typography>
+              <Typography className='mbs-1'>Por favor, inicia sesión en tu cuenta y comienza la aventura</Typography>
             </div>
-            <form noValidate autoComplete='off' onSubmit={handleSubmit} className='flex flex-col gap-5'>
-              <TextField autoFocus fullWidth label='Email' />
+            <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-5'>
+              <TextField
+                autoFocus
+                fullWidth
+                label='Teléfono o Nombre de usuario'
+                {...register('usernameOrPhone')}
+                error={!!errors.usernameOrPhone}
+                helperText={errors.usernameOrPhone?.message?.toString()}
+              />
               <TextField
                 fullWidth
-                label='Password'
+                label='Contraseña'
                 id='outlined-adornment-password'
                 type={isPasswordShown ? 'text' : 'password'}
+                {...register('password')}
+                error={!!errors.password}
+                helperText={errors.password?.message?.toString()}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>
@@ -87,21 +132,26 @@ const Login = ({ mode }: { mode: Mode }) => {
                 }}
               />
               <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-                <FormControlLabel control={<Checkbox />} label='Remember me' />
+                <FormControlLabel control={<Checkbox />} label='Recuérdame' />
                 <Typography className='text-end' color='primary' component={Link} href='/forgot-password'>
-                  Forgot password?
+                  ¿Olvidaste tu contraseña?
                 </Typography>
               </div>
-              <Button fullWidth variant='contained' type='submit'>
-                Log In
-              </Button>
-              <div className='flex justify-center items-center flex-wrap gap-2'>
-                <Typography>New on our platform?</Typography>
+              {errorMessage && (
+                <Typography color='error' className='text-center'>
+                  {errorMessage}
+                </Typography>
+              )}
+              <LoadingButton loading={loading} fullWidth variant='contained' type='submit'>
+                Iniciar Sesión
+              </LoadingButton>
+              {/*<div className='flex justify-center items-center flex-wrap gap-2'>
+                <Typography>¿Nuevo en nuestra plataforma?</Typography>
                 <Typography component={Link} href='/register' color='primary'>
-                  Create an account
+                  Crear una cuenta
                 </Typography>
               </div>
-              <Divider className='gap-3'>or</Divider>
+              <Divider className='gap-3'>o</Divider>
               <div className='flex justify-center items-center gap-2'>
                 <IconButton size='small' className='text-facebook'>
                   <i className='ri-facebook-fill' />
@@ -115,7 +165,7 @@ const Login = ({ mode }: { mode: Mode }) => {
                 <IconButton size='small' className='text-googlePlus'>
                   <i className='ri-google-fill' />
                 </IconButton>
-              </div>
+              </div>*/}
             </form>
           </div>
         </CardContent>

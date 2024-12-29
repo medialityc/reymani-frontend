@@ -16,7 +16,7 @@ import Illustrations from '@components/Illustrations'
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
 
-const NotFound = ({ mode }: { mode: Mode }) => {
+const Unauthorized = ({ mode }: { mode: Mode }) => {
   // Vars
   const darkImg = '/images/pages/misc-mask-dark.png'
   const lightImg = '/images/pages/misc-mask-light.png'
@@ -29,10 +29,10 @@ const NotFound = ({ mode }: { mode: Mode }) => {
       <div className='flex items-center flex-col text-center gap-10'>
         <div className='flex flex-col gap-2 is-[90vw] sm:is-[unset]'>
           <Typography className='font-medium text-8xl' color='text.primary'>
-            404
+            401
           </Typography>
-          <Typography variant='h4'>Página no encontrada 🕵️‍♂️</Typography>
-          <Typography>No pudimos encontrar la página que buscas.</Typography>
+          <Typography variant='h4'>Acceso no autorizado ⚠️</Typography>
+          <Typography>No tienes permiso para ver esta página.</Typography>
         </div>
         <img
           alt='error-illustration'
@@ -48,4 +48,4 @@ const NotFound = ({ mode }: { mode: Mode }) => {
   )
 }
 
-export default NotFound
+export default Unauthorized

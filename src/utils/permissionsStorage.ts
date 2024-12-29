@@ -11,3 +11,9 @@ export const getPermissions = (): string[] => {
 export const removePermissions = () => {
   localStorage.removeItem('permissions')
 }
+
+export const hasPermission = (permission: string): boolean => {
+  const permissions = getPermissions()
+
+  return permissions.includes(permission)
+}

@@ -22,7 +22,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 
 // Auth Context
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({

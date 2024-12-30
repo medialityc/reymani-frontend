@@ -1,7 +1,16 @@
+import Typography from '@mui/material/Typography'
+
+import RolesTable from '@/views/roles/RolesTable'
+
 // React Imports
 
-const PermissionsPage = () => {
-  return <h1>roles</h1>
+const RolesPage = () => {
+  return (
+    <div>
+      <Typography variant='h2'>Roles</Typography>
+      {<RolesTable />}
+    </div>
+  )
 }
 
-export default PermissionsPage
+export default RolesPage

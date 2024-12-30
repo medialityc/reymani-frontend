@@ -25,7 +25,7 @@ import * as z from 'zod'
 
 import LoadingButton from '@mui/lab/LoadingButton'
 
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 import { login as authLogin } from '@/services/AuthService'
 

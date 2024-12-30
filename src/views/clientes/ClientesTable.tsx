@@ -8,20 +8,21 @@ import type { GridColDef } from '@mui/x-data-grid'
 import { DataGrid, GridActionsCellItem, GridToolbar } from '@mui/x-data-grid'
 import { esES } from '@mui/x-data-grid/locales'
 
-import { fetchRoles } from '@/services/RolService'
-import type { RolDto } from '@/types/dtos/RolDto'
+import { fetchClientes } from '@/services/ClienteService'
+import type { ClienteDto } from '@/types/dtos/ClienteDto'
 import usePermissions from '@/hooks/usePermissions'
 
-export default function RolesTable() {
-  const [rows, setRows] = useState<RolDto[]>([])
+export default function ClientesTable() {
+  const [rows, setRows] = useState<ClienteDto[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const { hasPermission } = usePermissions()
 
   const columns: GridColDef[] = [
-    //{ field: 'idRol', headerName: 'ID', flex: 1 },
+    { field: 'numeroCarnet', headerName: 'Número de Carnet', flex: 1 },
     { field: 'nombre', headerName: 'Nombre', flex: 1 },
-    { field: 'descripcion', headerName: 'Descripción', flex: 1 },
+    { field: 'apellidos', headerName: 'Apellidos', flex: 1 },
+    { field: 'username', headerName: 'Username', flex: 1 },
     {
       field: 'actions',
       type: 'actions',
@@ -29,14 +30,13 @@ export default function RolesTable() {
       flex: 0.5,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        if (hasPermission('Actualizar_Rol')) {
+        if (hasPermission('EditarCliente')) {
           return [
-            // eslint-disable-next-line react/jsx-key
             <GridActionsCellItem
               icon={<i className='ri-edit-2-fill' />}
               label='Editar'
               className='textPrimary'
-              onClick={() => router.push(`/roles/${id}/edit`)}
+              onClick={() => router.push(`/clientes/${id}/edit`)}
               color='inherit'
             />
           ]
@@ -48,9 +48,9 @@ export default function RolesTable() {
   ]
 
   useEffect(() => {
-    const getRoles = async () => {
+    const getClientes = async () => {
       try {
-        const data = await fetchRoles()
+        const data = await fetchClientes()
 
         setRows(data)
       } catch (error: any) {
@@ -62,7 +62,7 @@ export default function RolesTable() {
       }
     }
 
-    getRoles()
+    getClientes()
   }, [])
 
   return (

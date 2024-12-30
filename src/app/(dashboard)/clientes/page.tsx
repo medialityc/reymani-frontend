@@ -1,7 +1,14 @@
-// React Imports
+import Typography from '@mui/material/Typography'
 
-const PermissionsPage = () => {
-  return <h1>clientes</h1>
+import ClientesTable from '@/views/clientes/ClientesTable'
+
+const ClientesPage = () => {
+  return (
+    <div>
+      <Typography variant='h2'>Clientes</Typography>
+      <ClientesTable />
+    </div>
+  )
 }
 
-export default PermissionsPage
+export default ClientesPage

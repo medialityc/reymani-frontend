@@ -1,6 +1,7 @@
 import type { GetAllRolesResponse } from '@/types/responses/GetAllRolesResponse'
 import api from './api'
 import type { RolDto } from '@/types/dtos/RolDto'
+import type { CreateRolRequest } from '@/types/requests/CreateRolRequest'
 
 export const fetchRoles = async (): Promise<RolDto[]> => {
   try {
@@ -13,5 +14,20 @@ export const fetchRoles = async (): Promise<RolDto[]> => {
     }
 
     return []
+  }
+}
+
+export const createRol = async (rolData: CreateRolRequest): Promise<void> => {
+  try {
+    console.log(rolData)
+    await api.post('/rol', rolData)
+  } catch (error: any) {
+    if (error.response && error.response.status === 401) {
+      throw error
+    }
+
+    if (error.response && error.response.status === 400) {
+      throw error
+    }
   }
 }

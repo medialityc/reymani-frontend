@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-key */
 'use client'
 
 import React, { useEffect, useState } from 'react'
@@ -61,7 +62,6 @@ export default function RolesTable() {
       getActions: ({ id }) => {
         if (hasPermission('Actualizar_Rol')) {
           const actions = [
-            // eslint-disable-next-line react/jsx-key
             <GridActionsCellItem
               icon={<i className='ri-edit-2-line' />}
               label='Editar'
@@ -73,7 +73,6 @@ export default function RolesTable() {
 
           if (hasPermission('Eliminar_Rol')) {
             actions.push(
-              // eslint-disable-next-line react/jsx-key
               <GridActionsCellItem
                 icon={<i className='ri-delete-bin-7-line' />}
                 onClick={handleDeleteClick(id)}

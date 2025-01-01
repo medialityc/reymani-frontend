@@ -67,9 +67,11 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
         <MenuItem href='/' icon={<i className='ri-dashboard-horizontal-fill' />}>
           Principal
         </MenuItem>
-        <MenuItem href='/clientes' icon={<i className='ri-group-fill' />}>
-          Clientes
-        </MenuItem>
+        {hasPermission('Ver_Clientes') && (
+          <MenuItem href='/clientes' icon={<i className='ri-group-fill' />}>
+            Clientes
+          </MenuItem>
+        )}
         {hasPermission('Ver_Roles') && (
           <MenuItem href='/roles' icon={<i className='ri-admin-fill' />}>
             Roles

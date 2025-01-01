@@ -1,12 +1,22 @@
 import type { ClienteDto } from '@/types/dtos/ClienteDto'
 import api from './api'
 import type { GetAllClienteResponse } from '@/types/responses/GetAllClienteResponse'
+import type { ChangeClienteStatusRequest } from '@/types/requests/ChangeClienteStatusRequest'
 
 export const fetchClientes = async (): Promise<ClienteDto[]> => {
   try {
     const response = await api.get<GetAllClienteResponse>('/cliente')
 
-    return response.data.clientes
+    console.log('API response:', response.data) // Debugging line
+
+    return response.data.clientes.map(cliente => ({
+      id: cliente.id,
+      numeroCarnet: cliente.numeroCarnet,
+      nombre: cliente.nombre,
+      apellidos: cliente.apellidos,
+      username: cliente.username,
+      activo: cliente.activo // Ensure this field is correctly mapped
+    }))
   } catch (error: any) {
     if (error.response && error.response.status === 401) {
       throw error
@@ -29,5 +39,21 @@ export const deleteCliente = async (id: string): Promise<void> => {
     }
 
     throw new Error('Error eliminando cliente')
+  }
+}
+
+export const changeClienteStatus = async (request: ChangeClienteStatusRequest): Promise<void> => {
+  try {
+    await api.put(`/cliente/${request.id}/status`, request)
+  } catch (error: any) {
+    if (error.response && error.response.status === 401) {
+      throw error
+    }
+
+    if (error.response && error.response.status === 404) {
+      throw new Error('Cliente no encontrado')
+    }
+
+    throw new Error('Error cambiando el estado del cliente')
   }
 }

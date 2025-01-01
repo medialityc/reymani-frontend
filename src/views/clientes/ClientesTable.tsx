@@ -11,7 +11,7 @@ import { esES } from '@mui/x-data-grid/locales'
 
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
-import { fetchClientes, deleteCliente } from '@/services/ClienteService'
+import { fetchClientes, deleteCliente, changeClienteStatus } from '@/services/ClienteService'
 import ConfirmationDialog from '@/components/ConfirmationDialog'
 import type { ClienteDto } from '@/types/dtos/ClienteDto'
 import usePermissions from '@/hooks/usePermissions'
@@ -22,6 +22,10 @@ export default function ClientesTable() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const handleDialogClose = () => setDialogOpen(false)
   const [selectedId, setSelectedId] = useState('')
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [selectedStatusId, setSelectedStatusId] = useState('')
+  const [selectedStatus, setSelectedStatus] = useState(false)
+  const handleStatusDialogClose = () => setStatusDialogOpen(false)
   const router = useRouter()
   const { hasPermission } = usePermissions()
 
@@ -48,44 +52,77 @@ export default function ClientesTable() {
     }
   }
 
+  const handleChangeStatusClick = (id: any, currentStatus: boolean) => () => {
+    setStatusDialogOpen(true)
+    setSelectedStatusId(id)
+    setSelectedStatus(currentStatus)
+  }
+
+  const handleStatusDialogAgree = async () => {
+    setStatusDialogOpen(false)
+
+    try {
+      await changeClienteStatus({ id: selectedStatusId, activo: !selectedStatus })
+      setRows(rows.map(row => (row.id === selectedStatusId ? { ...row, activo: !selectedStatus } : row)))
+      enqueueSnackbar('Estado del cliente cambiado correctamente', { variant: 'success' })
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
+        enqueueSnackbar('Cliente no encontrado', { variant: 'error' })
+      } else if (error.response && error.response.status === 401) {
+        router.push('/unauthorized')
+      } else {
+        enqueueSnackbar('Error cambiando el estado del cliente', { variant: 'error' })
+      }
+    }
+  }
+
   const columns: GridColDef[] = [
     { field: 'numeroCarnet', headerName: 'Número de Carnet', flex: 1 },
     { field: 'nombre', headerName: 'Nombre', flex: 1 },
     { field: 'apellidos', headerName: 'Apellidos', flex: 1 },
     { field: 'username', headerName: 'Username', flex: 1 },
     {
+      field: 'activo',
+      headerName: 'Estado',
+      flex: 1,
+      renderCell: (params: { row: ClienteDto }) => {
+        console.log('Activo value:', params.row?.activo) // Debugging line
+
+        return params.row?.activo ? 'Activo' : 'No Activo'
+      }
+    },
+    {
       field: 'actions',
       type: 'actions',
       headerName: 'Acciones',
       flex: 0.5,
       cellClassName: 'actions',
-      getActions: ({ id }) => {
-        if (hasPermission('Actualizar_Cliente')) {
-          const actions = [
+      getActions: ({ id, row }) => {
+        const actions = []
+
+        if (hasPermission('Eliminar_Cliente')) {
+          actions.push(
             <GridActionsCellItem
-              icon={<i className='ri-edit-2-fill' />}
-              label='Editar'
-              className='textPrimary'
-              onClick={() => router.push(`/clientes/${id}/edit`)}
+              icon={<i className='ri-delete-bin-7-line' />}
+              onClick={handleDeleteClick(id)}
+              label='Eliminar'
               color='inherit'
             />
-          ]
-
-          if (hasPermission('Eliminar_Cliente')) {
-            actions.push(
-              <GridActionsCellItem
-                icon={<i className='ri-delete-bin-7-line' />}
-                onClick={handleDeleteClick(id)}
-                label='Eliminar'
-                color='inherit'
-              />
-            )
-          }
-
-          return actions
+          )
         }
 
-        return []
+        if (hasPermission('Cambiar_Estado_Cliente')) {
+          actions.push(
+            <GridActionsCellItem
+              icon={<i className={row.activo ? 'ri-close-circle-line' : 'ri-checkbox-circle-line'} />}
+              onClick={handleChangeStatusClick(id, row.activo)}
+              label='Cambiar Estado'
+              color='inherit'
+            />
+          )
+        }
+
+        return actions
       }
     }
   ]
@@ -95,6 +132,7 @@ export default function ClientesTable() {
       try {
         const data = await fetchClientes()
 
+        console.log('Fetched data:', data) // Debugging line
         setRows(data)
       } catch (error: any) {
         if (error.response && error.response.status === 401) {
@@ -106,7 +144,7 @@ export default function ClientesTable() {
     }
 
     getClientes()
-  }, [])
+  }, [router])
 
   return (
     <div style={{ height: 650, width: '100%' }}>
@@ -130,6 +168,13 @@ export default function ClientesTable() {
         open={dialogOpen}
         handleClose={handleDialogClose}
         handleAgree={handleDialogAgree}
+      />
+      <ConfirmationDialog
+        title={'Cambiar Estado del Cliente'}
+        text={'¿Está seguro que desea cambiar el estado de este cliente?'}
+        open={statusDialogOpen}
+        handleClose={handleStatusDialogClose}
+        handleAgree={handleStatusDialogAgree}
       />
     </div>
   )

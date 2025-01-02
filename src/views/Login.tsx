@@ -33,13 +33,9 @@ import type { Mode } from '@core/types'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'
-import Illustrations from '@components/Illustrations'
 
 // Config Imports
 import themeConfig from '@configs/themeConfig'
-
-// Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
 
 // Form Imports
 
@@ -48,20 +44,15 @@ const schema = z.object({
   password: z.string().min(1, 'La contraseña es requerida')
 })
 
-const Login = ({ mode }: { mode: Mode }) => {
+const Login = ({}: { mode: Mode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Vars
-  const darkImg = '/images/pages/auth-v1-mask-dark.png'
-  const lightImg = '/images/pages/auth-v1-mask-light.png'
-
   // Hooks
   const router = useRouter()
-  const authBackground = useImageVariant(mode, lightImg, darkImg)
-  const { login } = useAuth()
+  const { login, isAuthenticated } = useAuth()
 
   const {
     register,
@@ -70,6 +61,15 @@ const Login = ({ mode }: { mode: Mode }) => {
   } = useForm({
     resolver: zodResolver(schema)
   })
+
+  // Redirect authenticated users
+  if (isAuthenticated) {
+    if (typeof window !== 'undefined') {
+      router.push('/')
+    }
+
+    return null
+  }
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
@@ -145,32 +145,10 @@ const Login = ({ mode }: { mode: Mode }) => {
               <LoadingButton loading={loading} fullWidth variant='contained' type='submit'>
                 Iniciar Sesión
               </LoadingButton>
-              {/*<div className='flex justify-center items-center flex-wrap gap-2'>
-                <Typography>¿Nuevo en nuestra plataforma?</Typography>
-                <Typography component={Link} href='/register' color='primary'>
-                  Crear una cuenta
-                </Typography>
-              </div>
-              <Divider className='gap-3'>o</Divider>
-              <div className='flex justify-center items-center gap-2'>
-                <IconButton size='small' className='text-facebook'>
-                  <i className='ri-facebook-fill' />
-                </IconButton>
-                <IconButton size='small' className='text-twitter'>
-                  <i className='ri-twitter-fill' />
-                </IconButton>
-                <IconButton size='small' className='text-github'>
-                  <i className='ri-github-fill' />
-                </IconButton>
-                <IconButton size='small' className='text-googlePlus'>
-                  <i className='ri-google-fill' />
-                </IconButton>
-              </div>*/}
             </form>
           </div>
         </CardContent>
       </Card>
-      <Illustrations maskImg={{ src: authBackground }} />
     </div>
   )
 }

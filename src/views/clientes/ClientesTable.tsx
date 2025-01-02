@@ -171,7 +171,7 @@ export default function ClientesTable() {
       />
       <ConfirmationDialog
         title={'Cambiar Estado del Cliente'}
-        text={'¿Está seguro que desea cambiar el estado de este cliente?'}
+        text={`¿Está seguro que desea cambiar el estado de este cliente a ${selectedStatus ? 'No Activo' : 'Activo'}?`}
         open={statusDialogOpen}
         handleClose={handleStatusDialogClose}
         handleAgree={handleStatusDialogAgree}

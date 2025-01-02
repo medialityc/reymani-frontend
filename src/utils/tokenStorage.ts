@@ -1,9 +1,21 @@
 export const saveToken = (token: string) => {
-  localStorage.setItem('token', token) // Para pruebas locales
+  if (typeof window !== 'undefined') {
+    document.cookie = `token=${token}; path=/`
+  }
 }
 
-export const getToken = () => localStorage.getItem('token')
+export const getToken = () => {
+  if (typeof window !== 'undefined') {
+    const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
+
+    if (match) return match[2]
+  }
+
+  return null
+}
 
 export const removeToken = () => {
-  localStorage.removeItem('token')
+  if (typeof window !== 'undefined') {
+    document.cookie = 'token=; Max-Age=0; path=/'
+  }
 }

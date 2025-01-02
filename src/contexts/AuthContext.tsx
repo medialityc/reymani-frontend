@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 
 import type { LoginResponse } from '@/types/responses/LoginResponse'
 
-import { saveToken, removeToken } from '@/utils/tokenStorage'
+import { saveToken, removeToken, getToken } from '@/utils/tokenStorage'
 import usePermissions from '@/hooks/usePermissions'
 
 const AuthContext = createContext<{
@@ -22,9 +22,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { savePermissions, removePermissions } = usePermissions()
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken')
+    if (typeof window !== 'undefined') {
+      const token = getToken()
 
-    setIsAuthenticated(!!token)
+      setIsAuthenticated(!!token)
+    }
   }, [])
 
   const login = (response: LoginResponse) => {

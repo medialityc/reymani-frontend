@@ -1,4 +1,4 @@
-export interface RolDto {
+export type RolDto = {
   id: string
   nombre: string
   descripcion?: string

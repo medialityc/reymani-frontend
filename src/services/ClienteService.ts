@@ -57,3 +57,21 @@ export const changeClienteStatus = async (request: ChangeClienteStatusRequest): 
     throw new Error('Error cambiando el estado del cliente')
   }
 }
+
+export const fetchCliente = async (id: string): Promise<ClienteDto> => {
+  try {
+    const response = await api.get<ClienteDto>(`/cliente/${id}`)
+
+    return response.data
+  } catch (error: any) {
+    if (error.response && error.response.status === 401) {
+      throw error
+    }
+
+    if (error.response && error.response.status === 404) {
+      throw new Error('Cliente no encontrado')
+    }
+
+    throw new Error('Error obteniendo cliente')
+  }
+}

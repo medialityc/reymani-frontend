@@ -1,4 +1,4 @@
-export interface ClienteDto {
+export type ClienteDto = {
   id: string
   numeroCarnet: string
   nombre: string

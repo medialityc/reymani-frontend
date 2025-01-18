@@ -1,5 +1,5 @@
 import type { ClienteDto } from '@/types/dtos/ClienteDto'
 
-export interface GetAllClienteResponse {
+export type GetAllClienteResponse = {
   clientes: ClienteDto[]
 }

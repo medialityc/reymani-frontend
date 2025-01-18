@@ -92,35 +92,35 @@ export default function TelefonosTable() {
     }
   ]
 
-  async function getTelefonos() {
-    try {
-      const data = await fetchTelefonos()
-
-      const mappedData = await Promise.all(
-        data.map(async telefono => {
-          if (telefono.tipoEntidad === 'Cliente') {
-            const cliente = await fetchCliente(telefono.idEntidad)
-
-            return { ...telefono, id: telefono.idTelefono, nombreEntidad: cliente.nombre }
-          }
-
-          return { ...telefono, id: telefono.idTelefono, nombreEntidad: telefono.idEntidad }
-        })
-      )
-
-      setRows(mappedData)
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        router.push('/unauthorized')
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
+    async function getTelefonos() {
+      try {
+        const data = await fetchTelefonos()
+
+        const mappedData = await Promise.all(
+          data.map(async telefono => {
+            if (telefono.tipoEntidad === 'Cliente') {
+              const cliente = await fetchCliente(telefono.idEntidad)
+
+              return { ...telefono, id: telefono.idTelefono, nombreEntidad: cliente.nombre }
+            }
+
+            return { ...telefono, id: telefono.idTelefono, nombreEntidad: telefono.idEntidad }
+          })
+        )
+
+        setRows(mappedData)
+      } catch (error: any) {
+        if (error.response && error.response.status === 401) {
+          router.push('/unauthorized')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
     getTelefonos()
-  }, [])
+  }, [router])
 
   return (
     <div style={{ height: 650, width: '100%' }}>

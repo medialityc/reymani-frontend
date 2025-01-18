@@ -1,5 +1,7 @@
+import type { UpdateTelefonoRequest } from './../types/requests/UpdateTelefonoRequest'
 import api from './api'
 import type { TelefonoDto } from '@/types/dtos/TelefonoDto'
+import type { CreateTelefonoRequest } from '@/types/requests/CreateTelefonoRequest'
 import type { GetAllTelefonosResponse } from '@/types/responses/GetAllTelefonosResponse'
 
 export const fetchTelefonos = async (): Promise<TelefonoDto[]> => {
@@ -34,7 +36,7 @@ export const fetchTelefono = async (id: string): Promise<TelefonoDto> => {
   }
 }
 
-export const createTelefono = async (telefonoData: TelefonoDto): Promise<void> => {
+export const createTelefono = async (telefonoData: CreateTelefonoRequest): Promise<void> => {
   try {
     await api.post('/telefono', telefonoData)
   } catch (error: any) {
@@ -48,9 +50,9 @@ export const createTelefono = async (telefonoData: TelefonoDto): Promise<void> =
   }
 }
 
-export const updateTelefono = async (id: string, telefonoData: TelefonoDto): Promise<void> => {
+export const updateTelefono = async (id: string, UpdateTelefonoRequest: UpdateTelefonoRequest): Promise<void> => {
   try {
-    await api.put(`/telefono/${id}`, telefonoData)
+    await api.put(`/telefono/${id}`, UpdateTelefonoRequest)
   } catch (error: any) {
     if (error.response && error.response.status === 401) {
       throw error

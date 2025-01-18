@@ -90,23 +90,23 @@ export default function RolesTable() {
     }
   ]
 
-  async function getRoles() {
-    try {
-      const data = await fetchRoles()
-
-      setRows(data)
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        router.push('/unauthorized')
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
+    async function getRoles() {
+      try {
+        const data = await fetchRoles()
+
+        setRows(data)
+      } catch (error: any) {
+        if (error.response && error.response.status === 401) {
+          router.push('/unauthorized')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
     getRoles()
-  }, [])
+  }, [router])
 
   return (
     <div style={{ height: 650, width: '100%' }}>

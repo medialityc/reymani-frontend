@@ -1,4 +1,4 @@
-export interface ChangeClienteStatusRequest {
+export type ChangeClienteStatusRequest = {
   id: string
   activo: boolean
 }

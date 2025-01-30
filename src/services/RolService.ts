@@ -55,9 +55,8 @@ export const fetchRol = async (id: string): Promise<RolDto> => {
 export const updateRol = async (id: string, rolData: RolDto, permisos: string[]): Promise<void> => {
   try {
     const updateRolRequest: UpdateRolRequest = {
-      RolId: id,
-      Rol: rolData,
-      Permisos: permisos
+      rol: rolData,
+      permisos: permisos
     }
 
     await api.put(`/rol/${id}`, updateRolRequest)

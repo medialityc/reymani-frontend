@@ -12,7 +12,7 @@ import { esES } from '@mui/x-data-grid/locales'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 import { fetchTelefonos, deleteTelefono } from '@/services/TelefonoService'
-import { fetchCliente } from '@/services/ClienteService'
+import { fetchUsuario } from '@/services/UsuarioService'
 import type { TelefonoDto } from '@/types/dtos/TelefonoDto'
 import usePermissions from '@/hooks/usePermissions'
 import ConfirmationDialog from '@/components/ConfirmationDialog'
@@ -99,10 +99,10 @@ export default function TelefonosTable() {
 
         const mappedData = await Promise.all(
           data.map(async telefono => {
-            if (telefono.tipoEntidad === 'Cliente') {
-              const cliente = await fetchCliente(telefono.idEntidad)
+            if (telefono.tipoEntidad === 'Usuario') {
+              const usuario = await fetchUsuario(telefono.idEntidad)
 
-              return { ...telefono, id: telefono.idTelefono, nombreEntidad: cliente.nombre }
+              return { ...telefono, id: telefono.idTelefono, nombreEntidad: usuario.nombre }
             }
 
             return { ...telefono, id: telefono.idTelefono, nombreEntidad: telefono.idEntidad }

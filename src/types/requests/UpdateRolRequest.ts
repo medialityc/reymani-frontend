@@ -1,7 +1,6 @@
-import type { RolDto } from '@/types/dtos/RolDto'
+import type { RolDto } from './../dtos/RolDto'
 
-export interface UpdateRolRequest {
-  RolId: string
-  Rol: RolDto
-  Permisos: string[]
+export type UpdateRolRequest = {
+  rol: RolDto
+  permisos: string[]
 }

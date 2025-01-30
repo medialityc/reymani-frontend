@@ -1,4 +1,4 @@
-export type ClienteDto = {
+export type UsuarioDto = {
   id: string
   numeroCarnet: string
   nombre: string

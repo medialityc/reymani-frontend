@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 const usePermissions = () => {
   const [permissions, setPermissions] = useState<string[]>([])
 
-  // Carga inicial de permisos desde localStorage (solo en el cliente)
+  // Carga inicial de permisos desde localStorage (solo en el usuario)
   useEffect(() => {
     const storedPermissions = localStorage.getItem('permissions')
 

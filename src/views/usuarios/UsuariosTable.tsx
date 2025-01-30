@@ -11,13 +11,13 @@ import { esES } from '@mui/x-data-grid/locales'
 
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
-import { fetchClientes, deleteCliente, changeClienteStatus } from '@/services/ClienteService'
+import { fetchUsuarios, deleteUsuario, changeUsuarioStatus } from '@/services/UsuarioService'
 import ConfirmationDialog from '@/components/ConfirmationDialog'
-import type { ClienteDto } from '@/types/dtos/ClienteDto'
+import type { UsuarioDto } from '@/types/dtos/UsuarioDto'
 import usePermissions from '@/hooks/usePermissions'
 
-export default function ClientesTable() {
-  const [rows, setRows] = useState<ClienteDto[]>([])
+export default function UsuariosTable() {
+  const [rows, setRows] = useState<UsuarioDto[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const handleDialogClose = () => setDialogOpen(false)
@@ -38,16 +38,16 @@ export default function ClientesTable() {
     setDialogOpen(false)
 
     try {
-      await deleteCliente(selectedId)
+      await deleteUsuario(selectedId)
       setRows(rows.filter(row => row.id !== selectedId))
-      enqueueSnackbar('Cliente eliminado correctamente', { variant: 'success' })
+      enqueueSnackbar('Usuario eliminado correctamente', { variant: 'success' })
     } catch (error: any) {
       if (error.response && error.response.status === 404) {
-        enqueueSnackbar('Cliente no encontrado', { variant: 'error' })
+        enqueueSnackbar('Usuario no encontrado', { variant: 'error' })
       } else if (error.response && error.response.status === 401) {
         router.push('/unauthorized')
       } else {
-        enqueueSnackbar('Error eliminando cliente', { variant: 'error' })
+        enqueueSnackbar('Error eliminando usuario', { variant: 'error' })
       }
     }
   }
@@ -62,16 +62,16 @@ export default function ClientesTable() {
     setStatusDialogOpen(false)
 
     try {
-      await changeClienteStatus({ id: selectedStatusId, activo: !selectedStatus })
+      await changeUsuarioStatus({ id: selectedStatusId, activo: !selectedStatus })
       setRows(rows.map(row => (row.id === selectedStatusId ? { ...row, activo: !selectedStatus } : row)))
-      enqueueSnackbar('Estado del cliente cambiado correctamente', { variant: 'success' })
+      enqueueSnackbar('Estado del usuario cambiado correctamente', { variant: 'success' })
     } catch (error: any) {
       if (error.response && error.response.status === 404) {
-        enqueueSnackbar('Cliente no encontrado', { variant: 'error' })
+        enqueueSnackbar('Usuario no encontrado', { variant: 'error' })
       } else if (error.response && error.response.status === 401) {
         router.push('/unauthorized')
       } else {
-        enqueueSnackbar('Error cambiando el estado del cliente', { variant: 'error' })
+        enqueueSnackbar('Error cambiando el estado del usuario', { variant: 'error' })
       }
     }
   }
@@ -85,7 +85,7 @@ export default function ClientesTable() {
       field: 'activo',
       headerName: 'Estado',
       flex: 1,
-      renderCell: (params: { row: ClienteDto }) => {
+      renderCell: (params: { row: UsuarioDto }) => {
         console.log('Activo value:', params.row?.activo) // Debugging line
 
         return params.row?.activo ? 'Activo' : 'No Activo'
@@ -100,7 +100,7 @@ export default function ClientesTable() {
       getActions: ({ id, row }) => {
         const actions = []
 
-        if (hasPermission('Eliminar_Cliente')) {
+        if (hasPermission('Eliminar_Usuario')) {
           actions.push(
             <GridActionsCellItem
               icon={<i className='ri-delete-bin-7-line' />}
@@ -111,7 +111,7 @@ export default function ClientesTable() {
           )
         }
 
-        if (hasPermission('Cambiar_Estado_Cliente')) {
+        if (hasPermission('Cambiar_Estado_Usuario')) {
           actions.push(
             <GridActionsCellItem
               icon={<i className={row.activo ? 'ri-close-circle-line' : 'ri-checkbox-circle-line'} />}
@@ -128,9 +128,9 @@ export default function ClientesTable() {
   ]
 
   useEffect(() => {
-    const getClientes = async () => {
+    const getUsuarios = async () => {
       try {
-        const data = await fetchClientes()
+        const data = await fetchUsuarios()
 
         console.log('Fetched data:', data) // Debugging line
         setRows(data)
@@ -143,7 +143,7 @@ export default function ClientesTable() {
       }
     }
 
-    getClientes()
+    getUsuarios()
   }, [router])
 
   return (
@@ -163,15 +163,15 @@ export default function ClientesTable() {
       />
       <SnackbarProvider maxSnack={3} />
       <ConfirmationDialog
-        title={'Eliminar Cliente'}
-        text={'¿Está seguro que desea eliminar este cliente?'}
+        title={'Eliminar Usuario'}
+        text={'¿Está seguro que desea eliminar este usuario?'}
         open={dialogOpen}
         handleClose={handleDialogClose}
         handleAgree={handleDialogAgree}
       />
       <ConfirmationDialog
-        title={'Cambiar Estado del Cliente'}
-        text={`¿Está seguro que desea cambiar el estado de este cliente a ${selectedStatus ? 'No Activo' : 'Activo'}?`}
+        title={'Cambiar Estado del Usuario'}
+        text={`¿Está seguro que desea cambiar el estado de este usuario a ${selectedStatus ? 'No Activo' : 'Activo'}?`}
         open={statusDialogOpen}
         handleClose={handleStatusDialogClose}
         handleAgree={handleStatusDialogAgree}

@@ -19,7 +19,10 @@ const schema = z.object({
     .string()
     .nonempty('El número de teléfono es requerido')
     .regex(/^[0-9]+$/, 'El número de teléfono solo puede contener números'),
-  descripcion: z.string().max(100, 'La descripción no debe exceder los 100 caracteres').optional()
+  descripcion: z.string().max(100, 'La descripción no debe exceder los 100 caracteres'),
+  numero: z.string(),
+  tipoEntidad: z.string(),
+  idEntidad: z.string(),
 })
 
 type FormData = z.infer<typeof schema>

@@ -15,9 +15,6 @@ import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 
-// Type Imports
-import { Checkbox, FormControlLabel } from '@mui/material'
-
 // Form Imports
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -40,7 +37,7 @@ import themeConfig from '@configs/themeConfig'
 // Form Imports
 
 const schema = z.object({
-  email: z.string().regex(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Formato de email inválido'),
+  email: z.string().regex(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Formato de correo inválido'),
   password: z.string().min(1, 'La contraseña es requerida')
 })
 
@@ -133,8 +130,7 @@ const Login = ({}: { mode: Mode }) => {
                   )
                 }}
               />
-              <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-                <FormControlLabel control={<Checkbox />} label='Recuérdame' />
+              <div className='flex justify-center items-center gap-x-3 gap-y-1 flex-wrap'>
                 <Typography className='text-end' color='primary' component={Link} href='/forgot-password'>
                   ¿Olvidaste tu contraseña?
                 </Typography>

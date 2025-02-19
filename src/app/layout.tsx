@@ -1,5 +1,7 @@
 // Third-party Imports
 import 'react-perfect-scrollbar/dist/css/styles.css'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 // Type Imports
 import type { ChildrenType } from '@core/types'
@@ -25,7 +27,10 @@ const RootLayout = ({ children }: ChildrenType) => {
   return (
     <html id='__next' dir={direction}>
       <body className='flex is-full min-bs-full flex-auto flex-col'>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <ToastContainer />
+        </AuthProvider>
       </body>
     </html>
   )

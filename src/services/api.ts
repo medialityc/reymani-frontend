@@ -16,4 +16,15 @@ api.interceptors.request.use(config => {
   return config
 })
 
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 404) {
+      return Promise.resolve({ data: null }) // Evita que Axios lance un error
+    }
+
+    return Promise.reject(error)
+  }
+)
+
 export default api

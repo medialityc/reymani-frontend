@@ -1,6 +1,10 @@
 'use client'
 
 // Next Imports
+import { useState } from 'react'
+
+import { useRouter } from 'next/navigation'
+
 import Link from 'next/link'
 
 // MUI Imports
@@ -11,6 +15,12 @@ import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 
 // Type Imports
+import { useForm } from 'react-hook-form'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import * as z from 'zod'
+
 import type { Mode } from '@core/types'
 
 // Component Imports
@@ -18,7 +28,33 @@ import Form from '@components/Form'
 import DirectionalIcon from '@components/DirectionalIcon'
 import Logo from '@components/layout/shared/Logo'
 
+import { forgotPassword } from '@/services/AuthService'
+
+const schema = z.object({
+  email: z.string().regex(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Formato de correo inválido')
+})
+
 const ForgotPassword = ({}: { mode: Mode }) => {
+  const router = useRouter()
+  const [responseMessage, setResponseMessage] = useState('')
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm({
+    resolver: zodResolver(schema)
+  })
+
+  const onSubmit = async (data: any) => {
+    try {
+      await forgotPassword(data)
+      router.push(`/reset-password?email=${data.email}`)
+    } catch (error: any) {
+      setResponseMessage(error.message)
+    }
+  }
+
   return (
     <div className='flex flex-col justify-center items-center min-bs-[100dvh] relative p-6'>
       <Card className='flex flex-col sm:is-[450px]'>
@@ -31,11 +67,23 @@ const ForgotPassword = ({}: { mode: Mode }) => {
             <Typography className='mbs-1'>
               Ingresa tu correo y te enviaremos instrucciones para restablecer tu contraseña
             </Typography>
-            <Form noValidate autoComplete='off' className='flex flex-col gap-5'>
-              <TextField autoFocus fullWidth label='Correo' />
+            <Form noValidate autoComplete='off' className='flex flex-col gap-5' onSubmit={handleSubmit(onSubmit)}>
+              <TextField
+                autoFocus
+                fullWidth
+                label='Correo'
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message?.toString()}
+              />
               <Button fullWidth variant='contained' type='submit'>
                 Enviar código de restablecimiento
               </Button>
+              {responseMessage && (
+                <Typography className='text-center' color='primary'>
+                  {responseMessage}
+                </Typography>
+              )}
               <Typography className='flex justify-center items-center' color='primary'>
                 <Link href='/login' className='flex items-center'>
                   <DirectionalIcon ltrIconClass='ri-arrow-left-s-line' rtlIconClass='ri-arrow-right-s-line' />

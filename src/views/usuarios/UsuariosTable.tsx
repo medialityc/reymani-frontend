@@ -14,7 +14,6 @@ import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { fetchUsuarios, deleteUsuario, changeUsuarioStatus } from '@/services/UsuarioService'
 import ConfirmationDialog from '@/components/ConfirmationDialog'
 import type { UsuarioDto } from '@/types/dtos/UsuarioDto'
-import usePermissions from '@/hooks/usePermissions'
 
 export default function UsuariosTable() {
   const [rows, setRows] = useState<UsuarioDto[]>([])
@@ -27,7 +26,6 @@ export default function UsuariosTable() {
   const [selectedStatus, setSelectedStatus] = useState(false)
   const handleStatusDialogClose = () => setStatusDialogOpen(false)
   const router = useRouter()
-  const { hasPermission } = usePermissions()
 
   const handleDeleteClick = (id: any) => () => {
     setDialogOpen(true)
@@ -100,27 +98,23 @@ export default function UsuariosTable() {
       getActions: ({ id, row }) => {
         const actions = []
 
-        if (hasPermission('Eliminar_Usuario')) {
-          actions.push(
-            <GridActionsCellItem
-              icon={<i className='ri-delete-bin-7-line' />}
-              onClick={handleDeleteClick(id)}
-              label='Eliminar'
-              color='inherit'
-            />
-          )
-        }
+        actions.push(
+          <GridActionsCellItem
+            icon={<i className='ri-delete-bin-7-line' />}
+            onClick={handleDeleteClick(id)}
+            label='Eliminar'
+            color='inherit'
+          />
+        )
 
-        if (hasPermission('Cambiar_Estado_Usuario')) {
-          actions.push(
-            <GridActionsCellItem
-              icon={<i className={row.activo ? 'ri-close-circle-line' : 'ri-checkbox-circle-line'} />}
-              onClick={handleChangeStatusClick(id, row.activo)}
-              label='Cambiar Estado'
-              color='inherit'
-            />
-          )
-        }
+        actions.push(
+          <GridActionsCellItem
+            icon={<i className={row.activo ? 'ri-close-circle-line' : 'ri-checkbox-circle-line'} />}
+            onClick={handleChangeStatusClick(id, row.activo)}
+            label='Cambiar Estado'
+            color='inherit'
+          />
+        )
 
         return actions
       }

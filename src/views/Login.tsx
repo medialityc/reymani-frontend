@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -40,7 +40,7 @@ import themeConfig from '@configs/themeConfig'
 // Form Imports
 
 const schema = z.object({
-  usernameOrPhone: z.string().min(1, 'El nombre de usuario es requerido'),
+  email: z.string().regex(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Formato de email inválido'),
   password: z.string().min(1, 'La contraseña es requerida')
 })
 
@@ -62,12 +62,14 @@ const Login = ({}: { mode: Mode }) => {
     resolver: zodResolver(schema)
   })
 
-  // Redirect authenticated users
-  if (isAuthenticated) {
-    if (typeof window !== 'undefined') {
+  // Redirige usuarios autenticados desde useEffect
+  useEffect(() => {
+    if (isAuthenticated) {
       router.push('/')
     }
+  }, [isAuthenticated, router])
 
+  if (isAuthenticated) {
     return null
   }
 
@@ -103,10 +105,10 @@ const Login = ({}: { mode: Mode }) => {
               <TextField
                 autoFocus
                 fullWidth
-                label='Teléfono o Nombre de usuario'
-                {...register('usernameOrPhone')}
-                error={!!errors.usernameOrPhone}
-                helperText={errors.usernameOrPhone?.message?.toString()}
+                label='Correo'
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message?.toString()}
               />
               <TextField
                 fullWidth

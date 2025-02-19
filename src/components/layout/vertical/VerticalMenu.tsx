@@ -19,7 +19,6 @@ import StyledVerticalNavExpandIcon from '@menu/styles/vertical/StyledVerticalNav
 // Style Imports
 import menuItemStyles from '@core/styles/vertical/menuItemStyles'
 import menuSectionStyles from '@core/styles/vertical/menuSectionStyles'
-import usePermissions from '@/hooks/usePermissions'
 
 type RenderExpandIconProps = {
   open?: boolean
@@ -38,8 +37,6 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
   const { isBreakpointReached, transitionDuration } = useVerticalNav()
 
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
-
-  const { hasPermission } = usePermissions()
 
   return (
     // eslint-disable-next-line lines-around-comment
@@ -66,26 +63,6 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
         <MenuItem href='/' icon={<i className='ri-dashboard-horizontal-fill' />}>
           Principal
         </MenuItem>
-        {hasPermission('Ver_Usuarios') && (
-          <MenuItem href='/usuarios' icon={<i className='ri-group-fill' />}>
-            Usuarios
-          </MenuItem>
-        )}
-        {hasPermission('Ver_Telefonos') && (
-          <MenuItem href='/telefonos' icon={<i className='ri-phone-fill' />}>
-            Teléfonos
-          </MenuItem>
-        )}
-        {hasPermission('Ver_Roles') && (
-          <MenuItem href='/roles' icon={<i className='ri-admin-fill' />}>
-            Roles
-          </MenuItem>
-        )}
-        {hasPermission('Ver_Permisos') && (
-          <MenuItem href='/permisos' icon={<i className='ri-key-2-fill' />}>
-            Permisos
-          </MenuItem>
-        )}
       </Menu>
     </ScrollWrapper>
   )

@@ -5,7 +5,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import type { LoginResponse } from '@/types/responses/LoginResponse'
 
 import { saveToken, removeToken, getToken } from '@/utils/tokenStorage'
-import usePermissions from '@/hooks/usePermissions'
 
 const AuthContext = createContext<{
   isAuthenticated: boolean
@@ -19,7 +18,6 @@ const AuthContext = createContext<{
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const { savePermissions, removePermissions } = usePermissions()
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -31,13 +29,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = (response: LoginResponse) => {
     saveToken(response.token)
-    savePermissions(response.permissions)
     setIsAuthenticated(true)
   }
 
   const logout = () => {
     removeToken()
-    removePermissions()
     setIsAuthenticated(false)
   }
 

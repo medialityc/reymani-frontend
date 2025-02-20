@@ -43,10 +43,10 @@ const UserDropdown = () => {
 
   // Hooks
   const router = useRouter()
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
 
   const handleDropdownOpen = () => {
-    !open ? setOpen(true) : setOpen(false)
+    setOpen(!open)
   }
 
   const handleDropdownClose = (event?: MouseEvent<HTMLLIElement> | (MouseEvent | TouchEvent), url?: string) => {
@@ -66,6 +66,8 @@ const UserDropdown = () => {
     handleDropdownClose(event, '/login')
   }
 
+  const defaultAvatar = '/images/avatars/1.png'
+
   return (
     <>
       <Badge
@@ -77,8 +79,8 @@ const UserDropdown = () => {
       >
         <Avatar
           ref={anchorRef}
-          alt='John Doe'
-          src='/images/avatars/1.png'
+          alt={user ? `${user.firstName} ${user.lastName}` : 'User'}
+          src={user && user.profilePicture ? user.profilePicture : defaultAvatar}
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
         />
@@ -102,18 +104,29 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-4 gap-2' tabIndex={-1}>
-                    <Avatar alt='John Doe' src='/images/avatars/1.png' />
+                    <Avatar
+                      alt={user ? `${user.firstName} ${user.lastName}` : 'User'}
+                      src={user && user.profilePicture ? user.profilePicture : defaultAvatar}
+                    />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        John Doe
+                        {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
                       </Typography>
-                      <Typography variant='caption'>Admin</Typography>
+                      <Typography variant='caption'>
+                        {user
+                          ? user.role === 3
+                            ? 'Administrador del Sistema'
+                            : user.role === 2
+                              ? 'Administrador del Negocio'
+                              : ''
+                          : ''}
+                      </Typography>
                     </div>
                   </div>
                   <Divider className='mlb-1' />
-                  <MenuItem className='gap-3' onClick={e => handleDropdownClose(e)}>
+                  <MenuItem className='gap-3' onClick={e => handleDropdownClose(e, '/users/me')}>
                     <i className='ri-user-3-line' />
-                    <Typography color='text.primary'>My Profile</Typography>
+                    <Typography color='text.primary'>Mi Perfil</Typography>
                   </MenuItem>
                   <div className='flex items-center plb-2 pli-4'>
                     <Button

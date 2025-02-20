@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -14,9 +14,6 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-
-// Type Imports
-import { Checkbox, FormControlLabel } from '@mui/material'
 
 // Form Imports
 import { useForm } from 'react-hook-form'
@@ -40,7 +37,7 @@ import themeConfig from '@configs/themeConfig'
 // Form Imports
 
 const schema = z.object({
-  usernameOrPhone: z.string().min(1, 'El nombre de usuario es requerido'),
+  email: z.string().regex(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Formato de correo inválido'),
   password: z.string().min(1, 'La contraseña es requerida')
 })
 
@@ -62,12 +59,14 @@ const Login = ({}: { mode: Mode }) => {
     resolver: zodResolver(schema)
   })
 
-  // Redirect authenticated users
-  if (isAuthenticated) {
-    if (typeof window !== 'undefined') {
+  // Redirige usuarios autenticados desde useEffect
+  useEffect(() => {
+    if (isAuthenticated) {
       router.push('/')
     }
+  }, [isAuthenticated, router])
 
+  if (isAuthenticated) {
     return null
   }
 
@@ -103,10 +102,10 @@ const Login = ({}: { mode: Mode }) => {
               <TextField
                 autoFocus
                 fullWidth
-                label='Teléfono o Nombre de usuario'
-                {...register('usernameOrPhone')}
-                error={!!errors.usernameOrPhone}
-                helperText={errors.usernameOrPhone?.message?.toString()}
+                label='Correo'
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message?.toString()}
               />
               <TextField
                 fullWidth
@@ -131,8 +130,7 @@ const Login = ({}: { mode: Mode }) => {
                   )
                 }}
               />
-              <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-                <FormControlLabel control={<Checkbox />} label='Recuérdame' />
+              <div className='flex justify-center items-center gap-x-3 gap-y-1 flex-wrap'>
                 <Typography className='text-end' color='primary' component={Link} href='/forgot-password'>
                   ¿Olvidaste tu contraseña?
                 </Typography>

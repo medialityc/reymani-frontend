@@ -1,8 +1,5 @@
 // Next Imports
 
-// MUI Imports
-import IconButton from '@mui/material/IconButton'
-
 // Third-party Imports
 import classnames from 'classnames'
 
@@ -22,9 +19,6 @@ const NavbarContent = () => {
       </div>
       <div className='flex items-center'>
         <ModeDropdown />
-        <IconButton className='text-textPrimary'>
-          <i className='ri-notification-2-line' />
-        </IconButton>
         <UserDropdown />
       </div>
     </div>

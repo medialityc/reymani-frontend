@@ -62,10 +62,10 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
   } else if (role === 'SystemAdmin') {
     menuItems = [
       { label: 'Principal', href: '/', icon: <i className='ri-dashboard-horizontal-fill' /> },
-      { label: 'Negocios', href: '/negocios', icon: <i className='ri-store-3-line' /> },
-      { label: 'Pedidos', href: '/pedidos', icon: <i className='ri-shopping-bag-fill' /> },
-      { label: 'Usuarios', href: '/usuarios', icon: <i className='ri-user-3-line' /> },
-      { label: 'Mensajeros', href: '/mensajeros', icon: <i className='ri-motorbike-line' /> }
+      { label: 'Negocios', href: '/business', icon: <i className='ri-store-3-line' /> },
+      { label: 'Pedidos', href: '/orders', icon: <i className='ri-shopping-bag-fill' /> },
+      { label: 'Usuarios', href: '/users', icon: <i className='ri-user-3-line' /> },
+      { label: 'Mensajeros', href: '/couriers', icon: <i className='ri-motorbike-line' /> }
     ]
   }
 

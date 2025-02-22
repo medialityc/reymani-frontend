@@ -27,3 +27,13 @@ export const updateCurrentUser = async (data: FormData) => {
     throw { status: 500, message: 'Error al actualizar el usuario' }
   }
 }
+
+export const getUsersSearch = async (filters: any) => {
+  try {
+    const response = await api.get('/users/search', { params: filters })
+
+    return response.data
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Error al obtener usuarios')
+  }
+}

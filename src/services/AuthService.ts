@@ -42,3 +42,21 @@ export const resetPassword = async (data: {
   // Si el interceptor devuelve { data: null } en un 404, retornamos null
   return response.data
 }
+
+// Agregar función changePassword
+export const changePassword = async (data: {
+  currentPassword: string
+  newPassword: string
+}): Promise<{ message: string }> => {
+  try {
+    const response = await api.post('/auth/change-password', data)
+
+    return response.data
+  } catch (error: any) {
+    if (error.response?.status === 400) {
+      throw { status: 400, message: 'La contraseña actual no es correcta' }
+    }
+
+    throw { status: error.response?.status || 500, message: 'Error al cambiar la contraseña' }
+  }
+}

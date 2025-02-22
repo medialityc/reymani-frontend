@@ -18,6 +18,12 @@ export const updateCurrentUser = async (data: FormData) => {
 
     return response.data
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Error al actualizar el usuario')
+    if (error.response) {
+      const { status, data } = error.response
+
+      throw { status, message: data?.message || 'Error al actualizar el usuario' }
+    }
+
+    throw { status: 500, message: 'Error al actualizar el usuario' }
   }
 }

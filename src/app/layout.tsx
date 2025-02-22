@@ -29,7 +29,7 @@ const RootLayout = ({ children }: ChildrenType) => {
       <body className='flex is-full min-bs-full flex-auto flex-col'>
         <AuthProvider>
           {children}
-          <ToastContainer />
+          <ToastContainer position='bottom-left' />
         </AuthProvider>
       </body>
     </html>

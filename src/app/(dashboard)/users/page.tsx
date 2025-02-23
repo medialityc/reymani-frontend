@@ -7,7 +7,9 @@ import UsersTable from '@/views/users/UsersTable'
 export default function UsersPage() {
   return (
     <div>
-      <Typography variant='h2'>Usuarios</Typography>
+      <Typography variant='h2' className='mb-4'>
+        Usuarios
+      </Typography>
       <UsersTable></UsersTable>
     </div>
   )

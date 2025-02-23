@@ -88,10 +88,10 @@ const UserDropdown = () => {
       <Popper
         open={open}
         transition
-        disablePortal
+        disablePortal={false} // Habilita portal para evitar problemas de stacking context
         placement='bottom-end'
         anchorEl={anchorRef.current}
-        className='min-is-[240px] !mbs-4 z-[1]'
+        className='min-is-[240px] !mbs-4 z-[1500]' // z-index mayor para que se muestre por encima
       >
         {({ TransitionProps, placement }) => (
           <Fade

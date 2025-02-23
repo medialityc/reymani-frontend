@@ -2,13 +2,13 @@ import React from 'react'
 
 import Typography from '@mui/material/Typography'
 
-import UpdateUser from '@/views/users/UpdateUser'
+import UpdateMe from '@/views/users/UpdateMe'
 
 export default function UpdateMePage() {
   return (
     <div>
       <Typography variant='h2'>Mi Perfil</Typography>
-      <UpdateUser />
+      <UpdateMe />
     </div>
   )
 }

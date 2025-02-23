@@ -2,20 +2,18 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 
-import type {
-  MRT_ColumnDef,
-  MRT_PaginationState,
-  MRT_SortingState,
-  MRT_TableOptions,
-  MRT_Row
-} from 'material-react-table'
+import type { MRT_ColumnDef, MRT_PaginationState, MRT_SortingState, MRT_Row } from 'material-react-table'
 import { MaterialReactTable } from 'material-react-table'
 import { MRT_Localization_ES } from 'material-react-table/locales/es'
 import { Box, Button, IconButton, Tooltip } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { toast } from 'react-toastify' // <-- Nuevo import
 
-import { getUsersSearch } from '../../services/UserService' // Asegúrate de importar correctamente el servicio
+import { getUsersSearch, deleteUser } from '../../services/UserService'
+import ConfirmationDialog from '../../components/ConfirmationDialog' // <-- Nuevo import
+import CreateUserModal from './CreateUserModal' // <-- Nuevo import
+import UpdateUserModal from './UpdateUserModal' // <-- Nuevo import
 
 interface User {
   id: number
@@ -41,6 +39,14 @@ const UsersTable: React.FC = () => {
 
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [globalFilter, setGlobalFilter] = useState<string>('')
+
+  // Estados para confirmación de eliminación
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<User | null>(null)
+
+  const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [updateModalOpen, setUpdateModalOpen] = useState(false)
+  const [userToUpdate, setUserToUpdate] = useState<User | null>(null)
 
   // Mapeo para la API: convierte el accessorKey de la tabla al nombre de propiedad esperado
   const columnMapping: { [key: string]: string } = {
@@ -159,102 +165,94 @@ const UsersTable: React.FC = () => {
     fetchData()
   }, [pagination, sorting, globalFilter])
 
-  // Funciones simuladas para CRUD. Reemplázalas por tus llamadas a la API.
-  const createUser = async (user: Partial<User>) => {
-    console.log('Creando usuario', user)
-
-    // Simula un retardo
-    return new Promise(resolve => setTimeout(resolve, 1000))
+  // Nueva función para abrir confirmación al eliminar
+  const handleOpenDelete = (row: MRT_Row<User>) => {
+    setUserToDelete(row.original)
+    setConfirmOpen(true)
   }
 
-  const updateUser = async (user: User) => {
-    console.log('Actualizando usuario', user)
-
-    return new Promise(resolve => setTimeout(resolve, 1000))
+  // Función para abrir ventana de edición
+  const handleOpenUpdate = (row: MRT_Row<User>) => {
+    setUserToUpdate(row.original)
+    setUpdateModalOpen(true)
   }
 
-  const deleteUser = async (id: number) => {
-    console.log('Eliminando usuario con id', id)
-
-    return new Promise(resolve => setTimeout(resolve, 1000))
-  }
-
-  // Acción para crear un nuevo usuario
-  const handleCreateUser: MRT_TableOptions<User>['onCreatingRowSave'] = async ({ values, table }) => {
-    try {
-      await createUser(values)
-      table.setCreatingRow(null) // Salir del modo creación
-      fetchData() // Recargar datos
-    } catch (error) {
-      console.error('Error al crear usuario:', error)
-    }
-  }
-
-  // Acción para editar un usuario
-  const handleEditingRowSave: MRT_TableOptions<User>['onEditingRowSave'] = async ({ values, table }) => {
-    try {
-      await updateUser(values)
-      table.setEditingRow(null) // Salir del modo edición
-      fetchData()
-    } catch (error) {
-      console.error('Error al actualizar usuario:', error)
-    }
-  }
-
-  // Acción para eliminar un usuario
-  const handleDeleteUser = async (row: MRT_Row<User>) => {
-    if (window.confirm('¿Está seguro que desea eliminar este usuario?')) {
+  // Función para confirmar eliminación
+  const handleConfirmDelete = async () => {
+    if (userToDelete) {
       try {
-        await deleteUser(row.original.id)
+        await deleteUser(userToDelete.id)
+        toast.success('Usuario eliminado correctamente') // <-- Toast de éxito
+        setConfirmOpen(false)
+        setUserToDelete(null)
         fetchData()
       } catch (error) {
         console.error('Error al eliminar usuario:', error)
+        toast.error('Error al eliminar usuario')
       }
     }
   }
 
   return (
-    <MaterialReactTable
-      columns={columns}
-      data={data}
-      state={{
-        isLoading,
-        pagination,
-        sorting,
-        globalFilter
-      }}
-      manualPagination
-      manualSorting
-      manualFiltering
-      enableGlobalFilter
-      enableEditing
-      onPaginationChange={setPagination}
-      onSortingChange={setSorting}
-      onGlobalFilterChange={setGlobalFilter}
-      onEditingRowSave={handleEditingRowSave}
-      onCreatingRowSave={handleCreateUser}
-      rowCount={totalCount}
-      renderRowActions={({ row, table }) => (
-        <Box sx={{ display: 'flex', gap: '1rem' }}>
-          <Tooltip title='Editar'>
-            <IconButton onClick={() => table.setEditingRow(row)}>
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title='Eliminar'>
-            <IconButton color='error' onClick={() => handleDeleteUser(row)}>
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
+    <>
+      <MaterialReactTable
+        columns={columns}
+        data={data}
+        enableRowActions // <-- Añade esta propiedad
+        state={{
+          isLoading,
+          pagination,
+          sorting,
+          globalFilter
+        }}
+        manualPagination
+        manualSorting
+        manualFiltering
+        enableGlobalFilter
+        onPaginationChange={setPagination}
+        onSortingChange={setSorting}
+        onGlobalFilterChange={setGlobalFilter}
+        rowCount={totalCount}
+        renderRowActions={({ row }) => (
+          <Box sx={{ display: 'flex', gap: '1rem' }}>
+            <Tooltip title='Editar'>
+              <IconButton onClick={() => handleOpenUpdate(row)}>
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title='Eliminar'>
+              <IconButton color='error' onClick={() => handleOpenDelete(row)}>
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
+        renderTopToolbarCustomActions={() => (
+          <Button variant='contained' onClick={() => setCreateModalOpen(true)}>
+            Nuevo Usuario
+          </Button>
+        )}
+        localization={MRT_Localization_ES}
+      />
+      {/* Modales para crear y actualizar usuario */}
+      <CreateUserModal open={createModalOpen} handleClose={() => setCreateModalOpen(false)} onUserCreated={fetchData} />
+      {userToUpdate && (
+        <UpdateUserModal
+          open={updateModalOpen}
+          handleClose={() => setUpdateModalOpen(false)}
+          user={userToUpdate}
+          onUserUpdated={fetchData}
+        />
       )}
-      renderTopToolbarCustomActions={({ table }) => (
-        <Button variant='contained' onClick={() => table.setCreatingRow(true)}>
-          Nuevo Usuario
-        </Button>
-      )}
-      localization={MRT_Localization_ES}
-    />
+      {/* Confirmación para eliminar usuario */}
+      <ConfirmationDialog
+        title='Eliminar usuario'
+        text='¿Está seguro que desea eliminar este usuario?'
+        open={confirmOpen}
+        handleClose={() => setConfirmOpen(false)}
+        handleAgree={handleConfirmDelete}
+      />
+    </>
   )
 }
 

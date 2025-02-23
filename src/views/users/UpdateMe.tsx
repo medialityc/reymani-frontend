@@ -46,7 +46,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
-const UpdateUser = () => {
+const UpdateMe = () => {
   const [user, setUser] = useState<any>(null)
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -159,7 +159,12 @@ const UpdateUser = () => {
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
                   <Button variant='outlined' component='label'>
                     Subir nueva foto
-                    <input type='file' hidden accept='image/*' onChange={handleFileChange} />
+                    <input
+                      type='file'
+                      hidden
+                      accept='image/jpeg,image/png,image/gif,image/bmp,image/webp,image/avif,image/jjif'
+                      onChange={handleFileChange}
+                    />
                   </Button>
                 </Grid>
                 {/* Campos editables con react-hook-form */}
@@ -259,4 +264,4 @@ const UpdateUser = () => {
   )
 }
 
-export default UpdateUser
+export default UpdateMe

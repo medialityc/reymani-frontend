@@ -37,3 +37,49 @@ export const getUsersSearch = async (filters: any) => {
     throw new Error(error.response?.data?.message || 'Error al obtener usuarios')
   }
 }
+
+export const createUser = async (data: FormData) => {
+  try {
+    const response = await api.post('/users', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+
+    return response.data
+  } catch (error: any) {
+    if (error.response) {
+      const { status, data } = error.response
+
+      throw { status, message: data?.message || 'Error al crear usuario' }
+    }
+
+    throw { status: 500, message: 'Error al crear usuario' }
+  }
+}
+
+export const updateUser = async (id: number, data: FormData) => {
+  try {
+    const response = await api.put(`/users/${id}`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+
+    return response.data
+  } catch (error: any) {
+    if (error.response) {
+      const { status, data } = error.response
+
+      throw { status, message: data?.message || 'Error al actualizar usuario' }
+    }
+
+    throw { status: 500, message: 'Error al actualizar usuario' }
+  }
+}
+
+export const deleteUser = async (id: number) => {
+  try {
+    const response = await api.delete(`/users/${id}`)
+
+    return response.data
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Error al eliminar usuario')
+  }
+}

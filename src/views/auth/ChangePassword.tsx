@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react'
 
+import LoadingButton from '@mui/lab/LoadingButton'
+
 import { z } from 'zod' // Importar zod
 import { toast } from 'react-toastify'
-import { Button, TextField, Card, CardContent, CardHeader, Grid } from '@mui/material'
+import { TextField, Card, CardContent, CardHeader, Grid } from '@mui/material'
 
 import { changePassword } from '@/services/AuthService'
 
@@ -28,6 +30,7 @@ const changePasswordSchema = z
 const ChangePassword = () => {
   const [formData, setFormData] = useState({ currentPassword: '', newPassword: '' })
   const [errors, setErrors] = useState<{ currentPassword?: string; newPassword?: string }>({})
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -57,6 +60,7 @@ const ChangePassword = () => {
 
     // Limpiar errores
     setErrors({})
+    setLoading(true)
 
     try {
       await changePassword(formData)
@@ -71,6 +75,8 @@ const ChangePassword = () => {
       } else {
         toast.error('Ha ocurrido un error al cambiar la contraseña.')
       }
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -105,9 +111,9 @@ const ChangePassword = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button variant='contained' type='submit'>
+              <LoadingButton variant='contained' type='submit' loading={loading}>
                 Cambiar Contraseña
-              </Button>
+              </LoadingButton>
             </Grid>
           </Grid>
         </form>

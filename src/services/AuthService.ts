@@ -1,10 +1,6 @@
-import type { LoginResponse } from '@/types/responses/LoginResponse'
-
-import type { LoginRequest } from '@/types/requests/LoginRequest'
-
 import api from './api'
 
-export const login = async (data: LoginRequest): Promise<LoginResponse> => {
+export const login = async (data: any): Promise<any> => {
   try {
     const response = await api.post('/auth/login', data)
 

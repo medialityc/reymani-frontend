@@ -36,6 +36,8 @@ import themeConfig from '@configs/themeConfig'
 
 // Form Imports
 
+import { getRoleFromToken } from '@/utils/tokenStorage'
+
 const schema = z.object({
   email: z.string().regex(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Formato de correo inválido'),
   password: z.string().min(1, 'La contraseña es requerida')
@@ -76,6 +78,17 @@ const Login = ({}: { mode: Mode }) => {
     try {
       setLoading(true)
       const response = await authLogin(data)
+
+      // Verificar rol permitido
+      const allowedRoles = ['SystemAdmin', 'BusinessAdmin']
+      const role = getRoleFromToken(response.token)
+
+      if (!allowedRoles.includes(role || '')) {
+        setErrorMessage('Acceso restringido para este usuario')
+        setLoading(false)
+
+        return
+      }
 
       login(response)
       router.push('/')

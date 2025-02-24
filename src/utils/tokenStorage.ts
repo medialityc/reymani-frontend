@@ -20,8 +20,8 @@ export const removeToken = () => {
   }
 }
 
-export const getRoleFromToken = (): string | null => {
-  const token = getToken()
+export const getRoleFromToken = (tokenParam?: string): string | null => {
+  const token = tokenParam || getToken()
 
   if (!token) return null
 

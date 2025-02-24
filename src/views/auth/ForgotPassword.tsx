@@ -12,7 +12,7 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
+import LoadingButton from '@mui/lab/LoadingButton'
 
 // Type Imports
 import { useForm } from 'react-hook-form'
@@ -37,6 +37,7 @@ const schema = z.object({
 const ForgotPassword = ({}: { mode: Mode }) => {
   const router = useRouter()
   const [responseMessage, setResponseMessage] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const {
     register,
@@ -47,11 +48,15 @@ const ForgotPassword = ({}: { mode: Mode }) => {
   })
 
   const onSubmit = async (data: any) => {
+    setLoading(true)
+
     try {
       await forgotPassword(data)
       router.push(`/reset-password?email=${data.email}`)
     } catch (error: any) {
       setResponseMessage(error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -76,9 +81,9 @@ const ForgotPassword = ({}: { mode: Mode }) => {
                 error={!!errors.email}
                 helperText={errors.email?.message?.toString()}
               />
-              <Button fullWidth variant='contained' type='submit'>
+              <LoadingButton fullWidth variant='contained' type='submit' loading={loading}>
                 Enviar código de restablecimiento
-              </Button>
+              </LoadingButton>
               {responseMessage && (
                 <Typography className='text-center' color='primary'>
                   {responseMessage}

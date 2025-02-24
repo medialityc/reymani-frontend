@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
-import { useForm, Controller } from 'react-hook-form' // <-- Agregado Controller
+import { useForm, Controller } from 'react-hook-form'
 import {
   Dialog,
   DialogTitle,
@@ -16,18 +16,18 @@ import {
   MenuItem
 } from '@mui/material'
 import { toast } from 'react-toastify'
-
-import { z } from 'zod' // <-- Nuevo import
-import { zodResolver } from '@hookform/resolvers/zod' // <-- Nuevo import
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import LoadingButton from '@mui/lab/LoadingButton'
 
 import { updateUser } from '../../services/UserService'
 
-// Definir regex para email (se toma de UpdateMe)
+// Regex para validar email
 const emailRegex = new RegExp(
   "^((([a-z]|\\d|[!#\\$%&'\\*\\+\\-/=\\?\\^_`{\\|}~])+(\\.([a-z]|\\d|[!#\\$%&'\\*\\+\\-/=\\?\\^_`{\\|}~])+)*)|((\\x22)(.+?)(\\x22)))@((([a-z]|\\d)+\\.)+([a-z]{2,}))$"
 )
 
-// Esquema de validación
+// Esquema de validación con zod
 const schema = z.object({
   firstName: z
     .string()
@@ -37,7 +37,13 @@ const schema = z.object({
     .string()
     .nonempty('El apellido es requerido')
     .regex(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, 'El apellido solo debe contener letras y espacios'),
-  password: z.string().nonempty('La contraseña es requerida'),
+  password: z
+    .string()
+    .nonempty('La contraseña es requerida')
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .regex(/[A-Z]/, 'La contraseña debe contener al menos una letra mayúscula.')
+    .regex(/[0-9]/, 'La contraseña debe contener al menos un número.')
+    .regex(/[\W]/, 'La contraseña debe contener al menos un carácter especial.'),
   email: z.string().nonempty('El correo es requerido').regex(emailRegex, 'El correo no es válido'),
   phone: z
     .string()
@@ -73,18 +79,38 @@ export default function UpdateUserModal({ open, handleClose, user, onUserUpdated
     register,
     handleSubmit,
     reset,
+    resetField,
     setValue,
     control,
+    watch,
     formState: { errors },
     setError
   } = useForm<FormValues>({
     resolver: zodResolver(schema)
   })
 
-  // Nuevo: función para mover el foco y cerrar el modal
+  // Estado para saber si se eliminó la imagen
+  const [deletedImage, setDeletedImage] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  // Función para cerrar el modal y resetear los valores
   const closeModal = () => {
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur()
+    }
+
+    if (user) {
+      reset({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        isActive: typeof user.isActive === 'boolean' ? user.isActive : user.isActive === 'Sí',
+        isConfirmed: typeof user.isConfirmed === 'boolean' ? user.isConfirmed : user.isConfirmed === 'Sí',
+        role: user.role,
+        password: '',
+        profilePicture: undefined
+      })
     }
 
     handleClose()
@@ -97,22 +123,26 @@ export default function UpdateUserModal({ open, handleClose, user, onUserUpdated
       setValue('email', user.email)
       setValue('phone', user.phone)
 
-      // Convertir valores a booleano: si el valor es booleano se conserva,
-      // si es string se considera "Sí" como true, de lo contrario false.
       const isActiveBoolean = typeof user.isActive === 'boolean' ? user.isActive : user.isActive === 'Sí'
       const isConfirmedBoolean = typeof user.isConfirmed === 'boolean' ? user.isConfirmed : user.isConfirmed === 'Sí'
 
       setValue('isActive', isActiveBoolean)
       setValue('isConfirmed', isConfirmedBoolean)
       setValue('role', user.role)
-      setValue('password', '') // Dejar vacío o forzar el cambio de contraseña
+      setValue('password', '')
     }
   }, [user, setValue])
 
-  const onSubmit = async (data: FormValues & { profilePicture?: FileList }) => {
+  const onSubmit = async (data: FormValues) => {
+    setLoading(true)
     const formData = new FormData()
 
-    if (data.profilePicture && data.profilePicture.length > 0) {
+    if (deletedImage) {
+      // Crear y enviar un archivo vacío para indicar la eliminación de la imagen
+      const emptyFile = new File([], '')
+
+      formData.append('ProfilePicture', emptyFile)
+    } else if (data.profilePicture && data.profilePicture.length > 0) {
       formData.append('ProfilePicture', data.profilePicture[0])
     }
 
@@ -130,22 +160,61 @@ export default function UpdateUserModal({ open, handleClose, user, onUserUpdated
       toast.success('Usuario actualizado correctamente')
       reset()
       onUserUpdated()
-      closeModal() // Se reemplaza handleClose() por closeModal()
+      closeModal()
     } catch (error: any) {
       if (error.response?.status === 409 || error.status === 409) {
         setError('email', { type: 'manual', message: 'El correo ya está en uso por otro usuario' })
       } else {
         toast.error('Error al actualizar usuario')
       }
+    } finally {
+      setLoading(false)
     }
   }
+
+  // Observa el campo de imagen para determinar qué mostrar
+  const profilePic = watch('profilePicture')
+
+  const imageSrc =
+    profilePic && profilePic.length > 0
+      ? URL.createObjectURL(profilePic[0])
+      : deletedImage
+        ? '/images/avatars/1.png'
+        : user?.profilePicture || '/images/avatars/1.png'
 
   return (
     <Dialog open={open} onClose={closeModal} fullWidth>
       <DialogTitle>Actualizar Usuario</DialogTitle>
       <DialogContent>
         <form id='update-user-form' onSubmit={handleSubmit(onSubmit)}>
-          {/* ...existing layout... */}
+          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+            <img src={imageSrc} alt='Foto de perfil' style={{ width: 100, height: 100, borderRadius: '50%' }} />
+          </div>
+          <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>
+            Subir nueva foto
+            <input
+              type='file'
+              hidden
+              {...register('profilePicture', {
+                onChange: e => {
+                  setDeletedImage(false)
+
+                  return e
+                }
+              })}
+            />
+          </Button>
+          <Button
+            variant='outlined'
+            onClick={() => {
+              resetField('profilePicture')
+              setDeletedImage(true)
+            }}
+            fullWidth
+            sx={{ mb: 2 }}
+          >
+            Eliminar imagen
+          </Button>
           <TextField
             fullWidth
             label='Nombre'
@@ -187,13 +256,19 @@ export default function UpdateUserModal({ open, handleClose, user, onUserUpdated
             error={!!errors.phone}
             helperText={errors.phone?.message}
           />
-          <Select fullWidth defaultValue={0} {...register('role', { required: true })} sx={{ mt: 2 }}>
-            <MenuItem value={0}>Cliente</MenuItem>
-            <MenuItem value={1}>Mensajero</MenuItem>
-            <MenuItem value={2}>Administrador de Negocio</MenuItem>
-            <MenuItem value={3}>Administrador de Sistema</MenuItem>
-          </Select>
-          {/* Se reemplaza Checkbox con Controller para cargar los valores */}
+          <Controller
+            name='role'
+            control={control}
+            defaultValue={user?.role ?? 0}
+            render={({ field: { value, onChange } }) => (
+              <Select fullWidth value={value} onChange={onChange} sx={{ mt: 2 }}>
+                <MenuItem value={0}>Cliente</MenuItem>
+                <MenuItem value={1}>Mensajero</MenuItem>
+                <MenuItem value={2}>Administrador de Negocio</MenuItem>
+                <MenuItem value={3}>Administrador de Sistema</MenuItem>
+              </Select>
+            )}
+          />
           <Controller
             name='isActive'
             control={control}
@@ -212,17 +287,13 @@ export default function UpdateUserModal({ open, handleClose, user, onUserUpdated
             )}
           />
           <br />
-          <Button variant='outlined' component='label' sx={{ mt: 2 }}>
-            Subir nueva foto
-            <input type='file' hidden {...register('profilePicture')} />
-          </Button>
         </form>
       </DialogContent>
       <DialogActions>
         <Button onClick={closeModal}>Cancelar</Button>
-        <Button type='submit' form='update-user-form' variant='contained'>
+        <LoadingButton type='submit' form='update-user-form' variant='contained' loading={loading}>
           Actualizar
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   )

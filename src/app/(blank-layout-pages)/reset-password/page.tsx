@@ -1,5 +1,5 @@
 // Component Imports
-import ResetPassword from '@views/ResetPassword'
+import ResetPassword from '@/views/auth/ResetPassword'
 
 const ResetPasswordPage = () => {
   return <ResetPassword />

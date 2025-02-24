@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 
 import { useForm } from 'react-hook-form'
 import {
@@ -16,8 +16,9 @@ import {
   MenuItem
 } from '@mui/material'
 import { toast } from 'react-toastify'
-import { z } from 'zod' // <-- Nuevo import
-import { zodResolver } from '@hookform/resolvers/zod' // <-- Nuevo import
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import LoadingButton from '@mui/lab/LoadingButton'
 
 import { createUser } from '../../services/UserService'
 
@@ -39,7 +40,7 @@ interface CreateUserModalProps {
   onUserCreated: () => void
 }
 
-// Definir regex para email (se toma de UpdateMe)
+// Regex para email
 const emailRegex = new RegExp(
   "^((([a-z]|\\d|[!#\\$%&'\\*\\+\\-/=\\?\\^_`{\\|}~])+(\\.([a-z]|\\d|[!#\\$%&'\\*\\+\\-/=\\?\\^_`{\\|}~])+)*)|((\\x22)(.+?)(\\x22)))@((([a-z]|\\d)+\\.)+([a-z]{2,}))$"
 )
@@ -54,7 +55,13 @@ const schema = z.object({
     .string()
     .nonempty('El apellido es requerido')
     .regex(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, 'El apellido solo debe contener letras y espacios'),
-  password: z.string().nonempty('La contraseña es requerida'),
+  password: z
+    .string()
+    .nonempty('La contraseña es requerida')
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .regex(/[A-Z]/, 'La contraseña debe contener al menos una letra mayúscula.')
+    .regex(/[0-9]/, 'La contraseña debe contener al menos un número.')
+    .regex(/[\W]/, 'La contraseña debe contener al menos un carácter especial.'),
   email: z.string().nonempty('El correo es requerido').regex(emailRegex, 'El correo no es válido'),
   phone: z
     .string()
@@ -67,27 +74,32 @@ const schema = z.object({
 })
 
 export default function CreateUserModal({ open, handleClose, onUserCreated }: CreateUserModalProps) {
-  // Inicializar useForm con resolutor zod
+  const [loading, setLoading] = useState(false)
+
   const {
     register,
     handleSubmit,
     reset,
+    resetField,
+    watch,
     formState: { errors },
     setError
   } = useForm<FormValues>({
     resolver: zodResolver(schema)
   })
 
-  // Nuevo: función para mover el foco y cerrar el modal
-  const closeModal = () => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur()
-    }
+  // Observar el campo de imagen para mostrar la preview
+  const profilePic = watch('profilePicture')
+  const imageSrc = profilePic && profilePic.length > 0 ? URL.createObjectURL(profilePic[0]) : '/images/avatars/1.png'
 
+  // Función para cerrar el modal y resetear el formulario
+  const closeModal = () => {
+    reset()
     handleClose()
   }
 
   const onSubmit = async (data: FormValues & { profilePicture?: FileList }) => {
+    setLoading(true)
     const formData = new FormData()
 
     // Adjuntar archivo si existe
@@ -109,13 +121,15 @@ export default function CreateUserModal({ open, handleClose, onUserCreated }: Cr
       toast.success('Usuario creado correctamente')
       reset()
       onUserCreated()
-      closeModal() // Se reemplaza handleClose() por closeModal()
+      closeModal()
     } catch (error: any) {
       if (error.response?.status === 409 || error.status === 409) {
         setError('email', { type: 'manual', message: 'El correo ya está en uso por otro usuario' })
       } else {
         toast.error('Error al crear usuario')
       }
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -124,7 +138,16 @@ export default function CreateUserModal({ open, handleClose, onUserCreated }: Cr
       <DialogTitle>Crear Usuario</DialogTitle>
       <DialogContent>
         <form id='create-user-form' onSubmit={handleSubmit(onSubmit)}>
-          {/* ...existing layout... */}
+          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+            <img src={imageSrc} alt='Foto de perfil' style={{ width: 100, height: 100, borderRadius: '50%' }} />
+          </div>
+          <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>
+            Subir foto de perfil
+            <input type='file' hidden {...register('profilePicture')} />
+          </Button>
+          <Button variant='outlined' onClick={() => resetField('profilePicture')} fullWidth sx={{ mb: 2 }}>
+            Eliminar imagen
+          </Button>
           <TextField
             fullWidth
             label='Nombre'
@@ -175,17 +198,13 @@ export default function CreateUserModal({ open, handleClose, onUserCreated }: Cr
           <FormControlLabel control={<Checkbox {...register('isActive')} defaultChecked />} label='Activo' />
           <FormControlLabel control={<Checkbox {...register('isConfirmed')} defaultChecked />} label='Confirmado' />
           <br />
-          <Button variant='outlined' component='label' sx={{ mt: 2 }}>
-            Subir foto de perfil
-            <input type='file' hidden {...register('profilePicture')} />
-          </Button>
         </form>
       </DialogContent>
       <DialogActions>
         <Button onClick={closeModal}>Cancelar</Button>
-        <Button type='submit' form='create-user-form' variant='contained'>
+        <LoadingButton type='submit' form='create-user-form' variant='contained' loading={loading}>
           Crear
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   )

@@ -1,7 +1,7 @@
 // Component Imports
 import Providers from '@components/Providers'
 import BlankLayout from '@layouts/BlankLayout'
-import Unauthorized from '@/views/Unauthorized'
+import Unauthorized from '@/views/errors/Unauthorized'
 
 // Util Imports
 import { getServerMode } from '@core/utils/serverHelpers'

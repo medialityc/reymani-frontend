@@ -1,7 +1,7 @@
 'use client'
 
 // Next Imports
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -16,7 +16,7 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
+import LoadingButton from '@mui/lab/LoadingButton'
 
 import { toast } from 'react-toastify'
 
@@ -54,6 +54,7 @@ const ResetPassword = () => {
   // Nuevo estado para los 4 dígitos
   const [digits, setDigits] = useState(['', '', '', ''])
   const inputsRef = useRef<(HTMLInputElement | null)[]>([])
+  const [loading, setLoading] = useState(false)
 
   const {
     register,
@@ -78,11 +79,22 @@ const ResetPassword = () => {
     }
   }
 
+  //haz que si no se recibe el email en params se redirija a login
+  useEffect(() => {
+    const email = searchParams.get('email')
+
+    if (!email) {
+      router.push('/login')
+    }
+  }, [searchParams, router])
+
   const onSubmit = async (data: any) => {
+    setLoading(true)
     const email = searchParams.get('email')
 
     if (!email) {
       setResponseMessage('Falta el correo en la URL')
+      setLoading(false)
 
       return
     }
@@ -91,6 +103,7 @@ const ResetPassword = () => {
 
     if (confirmationCode.length < 4) {
       setResponseMessage('Ingresa un código de 4 dígitos')
+      setLoading(false)
 
       return
     }
@@ -104,6 +117,7 @@ const ResetPassword = () => {
 
       if (!result) {
         setResponseMessage('Correo o código de confirmación incorrectos')
+        setLoading(false)
 
         return
       }
@@ -112,6 +126,8 @@ const ResetPassword = () => {
       router.push('/login')
     } catch (error: any) {
       setResponseMessage(error.message || 'Error al restablecer la contraseña')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -158,9 +174,9 @@ const ResetPassword = () => {
                 error={!!errors.confirmPassword}
                 helperText={errors.confirmPassword?.message?.toString()}
               />
-              <Button fullWidth variant='contained' type='submit'>
+              <LoadingButton fullWidth variant='contained' type='submit' loading={loading}>
                 Restablecer contraseña
-              </Button>
+              </LoadingButton>
               {responseMessage && (
                 <Typography className='text-center' color='error'>
                   {responseMessage}

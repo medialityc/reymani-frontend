@@ -11,6 +11,7 @@ import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import LoadingButton from '@mui/lab/LoadingButton'
 
 import { useForm } from 'react-hook-form'
 
@@ -21,7 +22,7 @@ import { z } from 'zod'
 import { getCurrentUser, updateCurrentUser } from '@/services/UserService'
 import Form from '@components/Form'
 import { useAuth } from '@/contexts/AuthContext'
-import ChangePassword from '../ChangePassword'
+import ChangePassword from '../auth/ChangePassword'
 
 const emailRegex = new RegExp(
   "^((([a-z]|\\d|[!#\\$%&'\\*\\+\\-/=\\?\\^_`{\\|}~]|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])+(\\.([a-z]|\\d|[!#\\$%&'\\*\\+\\-/=\\?\\^_`{\\|}~]|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])|(\\\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))@((([a-z]|\\d|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])|(([a-z]|\\d|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])([a-z]|\\d|-||_|~|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])*([a-z]|\\d|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])))\\.)+(([a-z]|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])+|(([a-z]|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])+([a-z]+|\\d|-|\\.{0,1}|_|~|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])?([a-z]|[\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF])))$"
@@ -51,6 +52,7 @@ const UpdateMe = () => {
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [emailError, setEmailError] = useState<string>('') // Estado para error de correo
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { updateUser } = useAuth()
 
@@ -98,6 +100,7 @@ const UpdateMe = () => {
 
   // Función modificada para el submit usando react-hook-form
   const onFormSubmit = async (data: FormValues) => {
+    setLoading(true)
     const dataToSend = new FormData()
 
     dataToSend.append('firstName', data.firstName)
@@ -133,6 +136,8 @@ const UpdateMe = () => {
       } else {
         toast.error('Error al actualizar usuario')
       }
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -210,9 +215,9 @@ const UpdateMe = () => {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <Button variant='contained' type='submit'>
+                  <LoadingButton variant='contained' type='submit' loading={loading}>
                     Actualizar
-                  </Button>
+                  </LoadingButton>
                 </Grid>
               </Grid>
             </Form>

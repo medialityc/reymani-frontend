@@ -50,6 +50,7 @@ type FormValues = z.infer<typeof schema>
 const UpdateMe = () => {
   const [user, setUser] = useState<any>(null)
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null)
+  const [deletedImage, setDeletedImage] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [emailError, setEmailError] = useState<string>('') // Estado para error de correo
   const [loading, setLoading] = useState(false)
@@ -95,6 +96,7 @@ const UpdateMe = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setProfilePictureFile(e.target.files[0])
+      setDeletedImage(false)
     }
   }
 
@@ -108,7 +110,11 @@ const UpdateMe = () => {
     dataToSend.append('email', data.email)
     dataToSend.append('phone', data.phone)
 
-    if (profilePictureFile) {
+    if (deletedImage) {
+      const emptyFile = new File([], '')
+
+      dataToSend.append('ProfilePicture', emptyFile)
+    } else if (profilePictureFile) {
       dataToSend.append('ProfilePicture', profilePictureFile, profilePictureFile.name)
     }
 
@@ -117,18 +123,20 @@ const UpdateMe = () => {
 
       const updatedUserWithPreview = {
         ...updatedUser,
-        profilePicture: profilePictureFile
-          ? URL.createObjectURL(profilePictureFile)
-          : updatedUser.profilePicture || user?.profilePicture,
+        profilePicture: deletedImage
+          ? '/images/avatars/1.png'
+          : profilePictureFile
+            ? URL.createObjectURL(profilePictureFile)
+            : updatedUser.profilePicture || user?.profilePicture,
         firstName: data.firstName,
         lastName: data.lastName,
         role: updatedUser.role !== undefined ? updatedUser.role : user?.role
       }
 
       setUser(updatedUserWithPreview)
-      updateUser(updatedUserWithPreview) // Actualizar en AuthContext
+      updateUser(updatedUserWithPreview) // Actualiza AuthContext para que UserDropdown se refresque sin recargar la página
       toast.success('Usuario actualizado correctamente')
-      router.refresh()
+      setIsEditing(false)
       router.push('/')
     } catch (err: any) {
       if (err.status === 409) {
@@ -141,9 +149,11 @@ const UpdateMe = () => {
     }
   }
 
-  const previewSrc = profilePictureFile
-    ? URL.createObjectURL(profilePictureFile)
-    : user?.profilePicture || '/images/avatars/1.png'
+  const previewSrc = deletedImage
+    ? '/images/avatars/1.png'
+    : profilePictureFile
+      ? URL.createObjectURL(profilePictureFile)
+      : user?.profilePicture || '/images/avatars/1.png'
 
   return (
     <Card>
@@ -153,7 +163,7 @@ const UpdateMe = () => {
           <>
             <Form onSubmit={handleSubmit(onFormSubmit)}>
               <Grid container spacing={5}>
-                {/* Foto y botón para cambiar imagen */}
+                {/* Foto y botones para cambiar/eliminar imagen */}
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
                   <img
                     src={previewSrc}
@@ -162,7 +172,7 @@ const UpdateMe = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <Button variant='outlined' component='label'>
+                  <Button variant='outlined' component='label' sx={{ mr: 1 }}>
                     Subir nueva foto
                     <input
                       type='file'
@@ -170,6 +180,15 @@ const UpdateMe = () => {
                       accept='image/jpeg,image/png,image/gif,image/bmp,image/webp,image/avif,image/jjif'
                       onChange={handleFileChange}
                     />
+                  </Button>
+                  <Button
+                    variant='outlined'
+                    onClick={() => {
+                      setProfilePictureFile(null)
+                      setDeletedImage(true)
+                    }}
+                  >
+                    Eliminar imagen
                   </Button>
                 </Grid>
                 {/* Campos editables con react-hook-form */}

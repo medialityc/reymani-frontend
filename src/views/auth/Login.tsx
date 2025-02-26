@@ -38,8 +38,13 @@ import themeConfig from '@configs/themeConfig'
 
 import { getRoleFromToken } from '@/utils/tokenStorage'
 
+// Regex para validar email
+const emailRegex = new RegExp(
+  "^((([a-z]|\\d|[!#\\$%&'\\*\\+\\-/=\\?\\^_`{\\|}~])+(\\.([a-z]|\\d|[!#\\$%&'\\*\\+\\-/=\\?\\^_`{\\|}~])+)*)|((\\x22)(.+?)(\\x22)))@((([a-z]|\\d)+\\.)+([a-z]{2,}))$"
+)
+
 const schema = z.object({
-  email: z.string().regex(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Formato de correo inválido'),
+  email: z.string().regex(emailRegex, 'Formato de correo inválido'),
   password: z.string().min(1, 'La contraseña es requerida')
 })
 

@@ -125,6 +125,27 @@ const UsersTable: React.FC = () => {
         header: 'Confirmado',
         Cell: ({ cell }) => (cell.getValue<boolean>() ? 'Sí' : 'No'),
         enableEditing: false
+      },
+
+      // Nueva columna de Acciones al final
+      {
+        header: 'Acciones',
+        enableSorting: false,
+        enableColumnFilter: false,
+        Cell: ({ row }) => (
+          <Box sx={{ display: 'flex', gap: '1rem' }}>
+            <Tooltip title='Editar'>
+              <IconButton onClick={() => handleOpenUpdate(row)}>
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title='Eliminar'>
+              <IconButton color='error' onClick={() => handleOpenDelete(row)}>
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )
       }
     ],
     []
@@ -198,7 +219,6 @@ const UsersTable: React.FC = () => {
       <MaterialReactTable
         columns={columns}
         data={data}
-        enableRowActions // <-- Añade esta propiedad
         state={{
           isLoading,
           pagination,
@@ -213,20 +233,6 @@ const UsersTable: React.FC = () => {
         onSortingChange={setSorting}
         onGlobalFilterChange={setGlobalFilter}
         rowCount={totalCount}
-        renderRowActions={({ row }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Tooltip title='Editar'>
-              <IconButton onClick={() => handleOpenUpdate(row)}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title='Eliminar'>
-              <IconButton color='error' onClick={() => handleOpenDelete(row)}>
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )}
         renderTopToolbarCustomActions={() => (
           <Button variant='contained' onClick={() => setCreateModalOpen(true)}>
             Nuevo Usuario

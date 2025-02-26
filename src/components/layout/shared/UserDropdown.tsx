@@ -110,7 +110,7 @@ const UserDropdown = () => {
                     />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
+                        {user ? `${user.firstName} ${user.lastName}` : 'Cargando...'}
                       </Typography>
                       <Typography variant='caption'>
                         {user

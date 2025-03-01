@@ -96,7 +96,7 @@ const BusinessTable: React.FC = () => {
       {
         accessorKey: 'userFullName',
         header: 'Administrador',
-        enableColumnFilter: false
+        enableColumnFilter: true
       },
       { accessorKey: 'municipalityName', header: 'Municipio' },
       { accessorKey: 'provinceName', header: 'Provincia' },
@@ -207,6 +207,7 @@ const BusinessTable: React.FC = () => {
         manualPagination
         manualSorting
         enableGlobalFilter
+        enableDensityToggle={false}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
         onGlobalFilterChange={setGlobalFilter}

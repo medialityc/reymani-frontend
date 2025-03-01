@@ -229,6 +229,7 @@ const UsersTable: React.FC = () => {
         manualSorting
         manualFiltering
         enableGlobalFilter
+        enableDensityToggle={false}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
         onGlobalFilterChange={setGlobalFilter}

@@ -3,13 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
 import { getCurrentUser } from '@/services/UserService'
-import type { LoginResponse } from '@/types/responses/LoginResponse'
 import { saveToken, removeToken, getToken } from '@/utils/tokenStorage'
 
 const AuthContext = createContext<{
   isAuthenticated: boolean
   user: any
-  login: (response: LoginResponse) => void
+  login: (response: { token: string; [key: string]: any }) => void
   logout: () => void
   updateUser: (user: any) => void
 }>({
@@ -38,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
-  const login = (response: LoginResponse) => {
+  const login = (response: { token: string; [key: string]: any }) => {
     saveToken(response.token)
     setIsAuthenticated(true)
 

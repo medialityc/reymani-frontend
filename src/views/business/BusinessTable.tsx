@@ -4,6 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react'
 
 import { useRouter } from 'next/navigation'
 
+import Image from 'next/image'
+
 import { MaterialReactTable } from 'material-react-table'
 import type { MRT_ColumnDef, MRT_PaginationState, MRT_SortingState, MRT_Row } from 'material-react-table'
 import { MRT_Localization_ES } from 'material-react-table/locales/es'
@@ -75,7 +77,7 @@ const BusinessTable: React.FC = () => {
         Cell: ({ cell }) => {
           const url = cell.getValue<string>()
 
-          return url ? <img src={url} alt='Logo' style={{ width: 40, height: 40 }} /> : 'N/A'
+          return url ? <Image src={url} alt='Logo' width={40} height={40} /> : 'N/A'
         },
         enableColumnFilter: false
       },
@@ -86,7 +88,7 @@ const BusinessTable: React.FC = () => {
         Cell: ({ cell }) => {
           const url = cell.getValue<string>()
 
-          return url ? <img src={url} alt='Banner' style={{ width: 40, height: 40 }} /> : 'N/A'
+          return url ? <Image src={url} alt='Banner' width={40} height={40} /> : 'N/A'
         },
         enableColumnFilter: false
       },

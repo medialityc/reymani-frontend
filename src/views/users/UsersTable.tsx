@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 
+import Image from 'next/image'
+
 import type { MRT_ColumnDef, MRT_PaginationState, MRT_SortingState, MRT_Row } from 'material-react-table'
 import { MaterialReactTable } from 'material-react-table'
 import { MRT_Localization_ES } from 'material-react-table/locales/es'
@@ -71,7 +73,7 @@ const UsersTable: React.FC = () => {
           const imageUrl = cell.getValue<string>()
 
           return imageUrl ? (
-            <img src={imageUrl} alt='Perfil' style={{ width: 40, height: 40, borderRadius: '50%' }} />
+            <Image src={imageUrl} alt='Perfil' width={40} height={40} style={{ borderRadius: '50%' }} />
           ) : (
             'N/A'
           )

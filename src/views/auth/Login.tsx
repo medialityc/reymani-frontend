@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -66,16 +66,11 @@ const Login = ({}: { mode: Mode }) => {
     resolver: zodResolver(schema)
   })
 
-  // Redirige usuarios autenticados desde useEffect
   useEffect(() => {
     if (isAuthenticated) {
       router.push('/')
     }
   }, [isAuthenticated, router])
-
-  if (isAuthenticated) {
-    return null
-  }
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
@@ -96,7 +91,7 @@ const Login = ({}: { mode: Mode }) => {
       }
 
       login(response)
-      router.push('/')
+      router.replace('/')
     } catch (error: any) {
       setErrorMessage(error.message)
     } finally {

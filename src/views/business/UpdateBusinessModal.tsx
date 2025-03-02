@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 
+import NextImage from 'next/image'
+
 import { Controller, useForm } from 'react-hook-form'
 import {
   Dialog,
@@ -308,7 +310,7 @@ export default function UpdateBusinessModal({
         <form id='update-business-form' onSubmit={handleSubmit(onSubmit)}>
           {logoPreview && (
             <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <img src={logoPreview} alt='Logo' style={{ width: 80, height: 80 }} />
+              <NextImage src={logoPreview} alt='Logo' width={80} height={80} />
             </div>
           )}
           <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>
@@ -340,7 +342,14 @@ export default function UpdateBusinessModal({
           )}
           {bannerPreview && (
             <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <img src={bannerPreview} alt='Banner' style={{ width: '100%', maxHeight: 150, objectFit: 'cover' }} />
+              <NextImage
+                src={bannerPreview}
+                alt='Banner'
+                width={800}
+                height={150}
+                style={{ objectFit: 'cover', width: '100%', maxHeight: '200' }}
+                sizes='100vw'
+              />
             </div>
           )}
           <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>

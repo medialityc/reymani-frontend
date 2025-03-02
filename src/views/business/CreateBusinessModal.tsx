@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 
+import Image from 'next/image'
+
 import { useForm } from 'react-hook-form'
 import {
   Dialog,
@@ -205,7 +207,7 @@ export default function CreateBusinessModal({ open, handleClose, onBusinessCreat
         <form id='create-business-form' onSubmit={handleSubmit(onSubmit)}>
           {logoPreview && (
             <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <img src={logoPreview} alt='Logo' style={{ width: 80, height: 80 }} />
+              <Image src={logoPreview} alt='Logo' width={80} height={80} />
             </div>
           )}
           <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>
@@ -219,7 +221,14 @@ export default function CreateBusinessModal({ open, handleClose, onBusinessCreat
           )}
           {bannerPreview && (
             <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <img src={bannerPreview} alt='Banner' style={{ width: '100%', maxHeight: 150, objectFit: 'cover' }} />
+              <Image
+                src={bannerPreview}
+                alt='Banner'
+                width={800}
+                height={150}
+                style={{ objectFit: 'cover', width: '100%', maxHeight: '200' }}
+                sizes='100vw'
+              />
             </div>
           )}
           <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>

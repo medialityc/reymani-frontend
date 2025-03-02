@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 
+import Image from 'next/image'
+
 import { useForm } from 'react-hook-form'
 import {
   Dialog,
@@ -139,7 +141,7 @@ export default function CreateUserModal({ open, handleClose, onUserCreated }: Cr
       <DialogContent>
         <form id='create-user-form' onSubmit={handleSubmit(onSubmit)}>
           <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-            <img src={imageSrc} alt='Foto de perfil' style={{ width: 100, height: 100, borderRadius: '50%' }} />
+            <Image src={imageSrc} alt='Foto de perfil' width={100} height={100} style={{ borderRadius: '50%' }} />
           </div>
           <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>
             Subir foto de perfil

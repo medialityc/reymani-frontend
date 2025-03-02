@@ -8,9 +8,10 @@ import type { MouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
+import Image from 'next/image'
+
 import { styled } from '@mui/material/styles'
 import Badge from '@mui/material/Badge'
-import Avatar from '@mui/material/Avatar'
 import Popper from '@mui/material/Popper'
 import Fade from '@mui/material/Fade'
 import Paper from '@mui/material/Paper'
@@ -70,43 +71,58 @@ const UserDropdown = () => {
 
   return (
     <>
-      <Badge
-        ref={anchorRef}
-        overlap='circular'
-        badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        className='mis-2'
-      >
-        <Avatar
-          ref={anchorRef}
-          alt={user ? `${user.firstName} ${user.lastName}` : 'User'}
-          src={user && user.profilePicture ? user.profilePicture : defaultAvatar}
-          onClick={handleDropdownOpen}
-          className='cursor-pointer bs-[38px] is-[38px]'
-        />
-      </Badge>
+      <div ref={anchorRef} className='inline-block relative'>
+        <Badge
+          overlap='circular'
+          badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          className='mis-2'
+        >
+          <Image
+            src={user && user.profilePicture ? user.profilePicture : defaultAvatar}
+            alt={user ? `${user.firstName} ${user.lastName}` : 'User'}
+            width={38}
+            height={38}
+            className='cursor-pointer rounded-full'
+            onClick={handleDropdownOpen}
+          />
+        </Badge>
+      </div>
       <Popper
         open={open}
         transition
-        disablePortal={false} // Habilita portal para evitar problemas de stacking context
+        disablePortal={true}
         placement='bottom-end'
         anchorEl={anchorRef.current}
-        className='min-is-[240px] !mbs-4 z-[1500]' // z-index mayor para que se muestre por encima
+        className='min-is-[240px] !mbs-4 z-[1500]'
+        popperOptions={{
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: [0, 10]
+              }
+            }
+          ]
+        }}
       >
         {({ TransitionProps, placement }) => (
           <Fade
             {...TransitionProps}
             style={{
-              transformOrigin: placement === 'bottom-end' ? 'right top' : 'left top'
+              transformOrigin: placement === 'bottom-end' ? 'top right' : 'top left'
             }}
           >
             <Paper className='shadow-lg'>
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-4 gap-2' tabIndex={-1}>
-                    <Avatar
-                      alt={user ? `${user.firstName} ${user.lastName}` : 'User'}
+                    <Image
                       src={user && user.profilePicture ? user.profilePicture : defaultAvatar}
+                      alt={user ? `${user.firstName} ${user.lastName}` : 'User'}
+                      width={38}
+                      height={38}
+                      className='rounded-full'
                     />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>

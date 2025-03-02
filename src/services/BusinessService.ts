@@ -70,3 +70,31 @@ export const getBusinessSystemAdminSearch = async (filters: any) => {
     throw new Error(error.response?.data?.message || 'Error al buscar negocios')
   }
 }
+
+export const getMyBusiness = async () => {
+  try {
+    const response = await api.get('/business/mine')
+
+    return response.data
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Error al obtener mi negocio')
+  }
+}
+
+export const updateMyBusiness = async (data: FormData) => {
+  try {
+    const response = await api.put('/business/mine', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+
+    return response.data
+  } catch (error: any) {
+    if (error.response) {
+      const { status, data } = error.response
+
+      throw { status, message: data?.message || 'Error al actualizar mi negocio' }
+    }
+
+    throw { status: 500, message: 'Error al actualizar mi negocio' }
+  }
+}

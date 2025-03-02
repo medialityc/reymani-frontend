@@ -33,10 +33,7 @@ const schema = z.object({
     .string()
     .nonempty('El nombre es requerido')
     .regex(alphaNumSpaceRegex, 'Solo permite letras, números y espacios'),
-  description: z
-    .string()
-    .nonempty('La descripción es requerida')
-    .regex(alphaNumSpaceRegex, 'Solo permite letras, números y espacios'),
+  description: z.string().regex(alphaNumSpaceRegex, 'Solo permite letras, números y espacios'),
   address: z.string().nonempty('La dirección es requerida').regex(addressRegex, 'Dirección no válida'),
   municipalityId: z.number().refine(val => val > 0, { message: 'El municipio es requerido' }),
   adminId: z.number().refine(val => val > 0, { message: 'El administrador es requerido' }),

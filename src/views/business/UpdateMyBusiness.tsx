@@ -206,7 +206,8 @@ const UpdateMyBusiness = () => {
                     alt='Logo del negocio'
                     width={120}
                     height={120}
-                    style={{ objectFit: 'cover', marginBottom: '1rem' }}
+                    style={{ objectFit: 'cover', marginBottom: '1rem', width: 'auto', height: 'auto' }}
+                    priority
                   />
                 )}
                 <div style={{ display: 'flex', gap: '10px' }}>
@@ -245,7 +246,14 @@ const UpdateMyBusiness = () => {
                     alt='Banner del negocio'
                     width={800}
                     height={200}
-                    style={{ width: '100%', maxHeight: '250', objectFit: 'cover', marginBottom: '1rem' }}
+                    style={{
+                      width: '100%',
+                      maxHeight: '250px',
+                      objectFit: 'cover',
+                      marginBottom: '1rem',
+                      height: 'auto'
+                    }}
+                    priority
                   />
                 )}
                 <div style={{ display: 'flex', gap: '10px' }}>
@@ -385,7 +393,8 @@ const UpdateMyBusiness = () => {
                   alt='Logo del negocio'
                   width={120}
                   height={120}
-                  style={{ objectFit: 'cover' }}
+                  style={{ objectFit: 'cover', width: 'auto', height: 'auto' }}
+                  priority
                 />
               </Grid>
             )}
@@ -398,7 +407,14 @@ const UpdateMyBusiness = () => {
                   alt='Banner del negocio'
                   width={800}
                   height={200}
-                  style={{ width: '100%', maxHeight: '250', objectFit: 'cover', marginBottom: '1rem' }}
+                  style={{
+                    width: '100%',
+                    maxHeight: '250px',
+                    objectFit: 'cover',
+                    marginBottom: '1rem',
+                    height: 'auto'
+                  }}
+                  priority
                 />
               </Grid>
             )}

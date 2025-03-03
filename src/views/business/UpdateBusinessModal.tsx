@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 
-import NextImage from 'next/image'
-
 import { Controller, useForm } from 'react-hook-form'
 import {
   Dialog,
@@ -24,6 +22,7 @@ import LoadingButton from '@mui/lab/LoadingButton'
 import { updateBusiness } from '../../services/BusinessService'
 import { getProvinces } from '../../services/ProvinceService'
 import { getBusinessAdminUsers } from '../../services/UserService'
+import BusinessHeaderImages from '@/components/business/BusinessHeaderImages'
 
 const alphaNumSpaceRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$/
 const addressRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s,\.¡!¿?'\-]+$/
@@ -305,77 +304,40 @@ export default function UpdateBusinessModal({
       <DialogTitle>Actualizar Negocio</DialogTitle>
       <DialogContent>
         <form id='update-business-form' onSubmit={handleSubmit(onSubmit)}>
-          {logoPreview && (
-            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <NextImage src={logoPreview} alt='Logo' width={80} height={80} />
-            </div>
-          )}
-          <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>
-            Subir nuevo Logo
-            <input
-              type='file'
-              hidden
-              {...register('logo', {
-                onChange: e => {
-                  setLogoDeleted(false)
+          {/* Replace the old image handling UI with BusinessHeaderImages component */}
+          <BusinessHeaderImages
+            logoUrl={logoPreview}
+            bannerUrl={bannerPreview}
+            isEditing={true}
+            onLogoChange={e => {
+              if (e.target.files && e.target.files.length > 0) {
+                const filesArray = e.target.files
 
-                  return e
-                }
-              })}
-            />
-          </Button>
-          {logoPreview && (
-            <Button
-              variant='outlined'
-              onClick={() => {
-                resetField('logo')
-                setLogoDeleted(true)
-              }}
-              fullWidth
-              sx={{ mb: 2 }}
-            >
-              Eliminar Logo
-            </Button>
-          )}
-          {bannerPreview && (
-            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <NextImage
-                src={bannerPreview}
-                alt='Banner'
-                width={800}
-                height={150}
-                style={{ objectFit: 'cover', width: '100%', maxHeight: '200' }}
-                sizes='100vw'
-              />
-            </div>
-          )}
-          <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>
-            Subir nuevo Banner
-            <input
-              type='file'
-              hidden
-              {...register('banner', {
-                onChange: e => {
-                  setBannerDeleted(false)
+                register('logo').onChange({
+                  target: { name: 'logo', value: filesArray }
+                })
+                setLogoDeleted(false)
+              }
+            }}
+            onBannerChange={e => {
+              if (e.target.files && e.target.files.length > 0) {
+                const filesArray = e.target.files
 
-                  return e
-                }
-              })}
-            />
-          </Button>
-          {bannerPreview && (
-            <Button
-              variant='outlined'
-              onClick={() => {
-                resetField('banner')
-                setBannerDeleted(true)
-              }}
-              fullWidth
-              sx={{ mb: 2 }}
-            >
-              Eliminar Banner
-            </Button>
-          )}
+                register('banner').onChange({
+                  target: { name: 'banner', value: filesArray }
+                })
+                setBannerDeleted(false)
+              }
+            }}
+            onLogoDelete={() => {
+              resetField('logo')
+              setLogoDeleted(true)
+            }}
+            onBannerDelete={() => {
+              resetField('banner')
+              setBannerDeleted(true)
+            }}
+          />
           <TextField
             fullWidth
             label='Nombre'

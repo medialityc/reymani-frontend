@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 
-import Image from 'next/image'
-
 import { toast } from 'react-toastify'
 
 // MUI Components
@@ -27,6 +25,7 @@ import { z } from 'zod'
 import { getMyBusiness, updateMyBusiness } from '@/services/BusinessService'
 import { getProvinces } from '@/services/ProvinceService'
 import Form from '@components/Form'
+import BusinessHeaderImages from '@/components/business/BusinessHeaderImages'
 
 // Validation Schema
 const alphaNumSpaceRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$/
@@ -194,90 +193,23 @@ const UpdateMyBusiness = () => {
         {isEditing ? (
           <Form onSubmit={handleSubmit(onFormSubmit)}>
             <Grid container spacing={5}>
-              {/* Logo */}
-              <Grid
-                item
-                xs={12}
-                sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}
-              >
-                {logoPreview && (
-                  <Image
-                    src={logoPreview}
-                    alt='Logo del negocio'
-                    width={120}
-                    height={120}
-                    style={{ objectFit: 'cover', marginBottom: '1rem', width: 'auto', height: 'auto' }}
-                    priority
-                  />
-                )}
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <Button variant='outlined' component='label'>
-                    Subir nuevo logo
-                    <input
-                      type='file'
-                      hidden
-                      accept='image/jpeg,image/png,image/gif,image/bmp,image/webp'
-                      onChange={handleLogoChange}
-                    />
-                  </Button>
-                  {logoPreview && (
-                    <Button
-                      variant='outlined'
-                      onClick={() => {
-                        setLogoFile(null)
-                        setLogoDeleted(true)
-                      }}
-                    >
-                      Eliminar logo
-                    </Button>
-                  )}
-                </div>
-              </Grid>
-
-              {/* Banner */}
-              <Grid
-                item
-                xs={12}
-                sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}
-              >
-                {bannerPreview && (
-                  <Image
-                    src={bannerPreview}
-                    alt='Banner del negocio'
-                    width={800}
-                    height={200}
-                    style={{
-                      width: '100%',
-                      maxHeight: '250px',
-                      objectFit: 'cover',
-                      marginBottom: '1rem',
-                      height: 'auto'
-                    }}
-                    priority
-                  />
-                )}
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <Button variant='outlined' component='label'>
-                    Subir nuevo banner
-                    <input
-                      type='file'
-                      hidden
-                      accept='image/jpeg,image/png,image/gif,image/bmp,image/webp'
-                      onChange={handleBannerChange}
-                    />
-                  </Button>
-                  {bannerPreview && (
-                    <Button
-                      variant='outlined'
-                      onClick={() => {
-                        setBannerFile(null)
-                        setBannerDeleted(true)
-                      }}
-                    >
-                      Eliminar banner
-                    </Button>
-                  )}
-                </div>
+              {/* Replace old logo and banner handling with new component */}
+              <Grid item xs={12}>
+                <BusinessHeaderImages
+                  logoUrl={logoPreview}
+                  bannerUrl={bannerPreview}
+                  isEditing={true}
+                  onLogoChange={handleLogoChange}
+                  onBannerChange={handleBannerChange}
+                  onLogoDelete={() => {
+                    setLogoFile(null)
+                    setLogoDeleted(true)
+                  }}
+                  onBannerDelete={() => {
+                    setBannerFile(null)
+                    setBannerDeleted(true)
+                  }}
+                />
               </Grid>
 
               {/* Business Information Fields */}
@@ -383,41 +315,14 @@ const UpdateMyBusiness = () => {
           </Form>
         ) : (
           <Grid container spacing={5}>
-            {/* View mode - displaying business information */}
-
-            {/* Logo */}
-            {business?.logo && (
-              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Image
-                  src={business.logo}
-                  alt='Logo del negocio'
-                  width={120}
-                  height={120}
-                  style={{ objectFit: 'cover', width: 'auto', height: 'auto' }}
-                  priority
-                />
-              </Grid>
-            )}
-
-            {/* Banner */}
-            {business?.banner && (
-              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Image
-                  src={business.banner}
-                  alt='Banner del negocio'
-                  width={800}
-                  height={200}
-                  style={{
-                    width: '100%',
-                    maxHeight: '250px',
-                    objectFit: 'cover',
-                    marginBottom: '1rem',
-                    height: 'auto'
-                  }}
-                  priority
-                />
-              </Grid>
-            )}
+            {/* View mode - Replace logo and banner display with new component */}
+            <Grid item xs={12}>
+              <BusinessHeaderImages
+                logoUrl={business?.logo || null}
+                bannerUrl={business?.banner || null}
+                isEditing={false}
+              />
+            </Grid>
 
             {/* Business details */}
             <Grid item xs={12}>

@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 
-import Image from 'next/image'
-
 import { useForm } from 'react-hook-form'
 import {
   Dialog,
@@ -24,8 +22,9 @@ import LoadingButton from '@mui/lab/LoadingButton'
 import { createBusiness } from '../../services/BusinessService'
 import { getProvinces } from '../../services/ProvinceService'
 import { getBusinessAdminUsers } from '../../services/UserService' // <-- nuevo import
+import BusinessHeaderImages from '@/components/business/BusinessHeaderImages'
 
-// Nueva expresión regular que admite letras acentuadas y la ñ/Ñ
+// Nueva expresión regular que admite letras acentuadas y la ��/Ñ
 const alphaNumSpaceRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$/
 
 // Nueva expresión regular para permitir letras, números, espacios y signos de puntuación comunes en dirección
@@ -205,41 +204,34 @@ export default function CreateBusinessModal({ open, handleClose, onBusinessCreat
       <DialogTitle>Crear Negocio</DialogTitle>
       <DialogContent>
         <form id='create-business-form' onSubmit={handleSubmit(onSubmit)}>
-          {logoPreview && (
-            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <Image src={logoPreview} alt='Logo' width={80} height={80} />
-            </div>
-          )}
-          <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>
-            Subir Logo
-            <input type='file' hidden {...register('logo')} />
-          </Button>
-          {logoPreview && (
-            <Button variant='outlined' onClick={() => resetField('logo')} fullWidth sx={{ mb: 2 }}>
-              Eliminar Logo
-            </Button>
-          )}
-          {bannerPreview && (
-            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <Image
-                src={bannerPreview}
-                alt='Banner'
-                width={800}
-                height={150}
-                style={{ objectFit: 'cover', width: '100%', maxHeight: '200' }}
-                sizes='100vw'
-              />
-            </div>
-          )}
-          <Button variant='outlined' component='label' fullWidth sx={{ mb: 1 }}>
-            Subir Banner
-            <input type='file' hidden {...register('banner')} />
-          </Button>
-          {bannerPreview && (
-            <Button variant='outlined' onClick={() => resetField('banner')} fullWidth sx={{ mb: 2 }}>
-              Eliminar Banner
-            </Button>
-          )}
+          {/* Fix the image handlers to properly update React Hook Form state */}
+          <BusinessHeaderImages
+            logoUrl={logoPreview}
+            bannerUrl={bannerPreview}
+            isEditing={true}
+            onLogoChange={e => {
+              if (e.target.files && e.target.files.length > 0) {
+                const filesArray = e.target.files
+
+                // Use this format to ensure React Hook Form registers the change properly
+                register('logo').onChange({
+                  target: { name: 'logo', value: filesArray }
+                })
+              }
+            }}
+            onBannerChange={e => {
+              if (e.target.files && e.target.files.length > 0) {
+                const filesArray = e.target.files
+
+                // Use this format to ensure React Hook Form registers the change properly
+                register('banner').onChange({
+                  target: { name: 'banner', value: filesArray }
+                })
+              }
+            }}
+            onLogoDelete={() => resetField('logo')}
+            onBannerDelete={() => resetField('banner')}
+          />
           <TextField
             fullWidth
             label='Nombre'

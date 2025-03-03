@@ -16,7 +16,7 @@ import { getMyProductsSearch, deleteMyProduct } from '../../services/ProductServ
 import ConfirmationDialog from '../../components/ConfirmationDialog'
 import CreateProductModal from './CreateProductModal'
 import UpdateProductModal from './UpdateProductModal'
-import ProductImagesCell from '../../components/ProductImagesCell'
+import ImagesCell from '../../components/ImagesCell'
 import { getCapacityLabel } from '../../utils/capacityUtils'
 
 interface Product {
@@ -73,7 +73,7 @@ const ProductsTable: React.FC = () => {
         accessorKey: 'images',
         header: 'Imagen',
         size: 80,
-        Cell: ({ row }) => <ProductImagesCell images={row.original.images} alt={row.original.name} />,
+        Cell: ({ row }) => <ImagesCell images={row.original.images} alt={row.original.name} />,
         enableColumnFilter: false
       },
       { accessorKey: 'name', header: 'Nombre' },

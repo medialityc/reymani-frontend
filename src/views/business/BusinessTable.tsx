@@ -4,7 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import Image from 'next/image'
+// Eliminar el import de Image ya que usaremos ImagesCell
+// import Image from 'next/image'
 
 import { MaterialReactTable } from 'material-react-table'
 import type { MRT_ColumnDef, MRT_PaginationState, MRT_SortingState, MRT_Row } from 'material-react-table'
@@ -19,6 +20,7 @@ import { getBusinessSystemAdminSearch, deleteBusiness } from '../../services/Bus
 import CreateBusinessModal from './CreateBusinessModal'
 import UpdateBusinessModal from './UpdateBusinessModal' // <-- Nuevo import
 import ConfirmationDialog from '../../components/ConfirmationDialog' // ...nuevo import
+import ImagesCell from '../../components/ImagesCell' // Nuevo import
 
 interface Business {
   id: number
@@ -74,10 +76,11 @@ const BusinessTable: React.FC = () => {
         accessorKey: 'logo',
         header: 'Logo',
         size: 80,
-        Cell: ({ cell }) => {
-          const url = cell.getValue<string>()
+        Cell: ({ row }) => {
+          // Crear un array con solo el logo
+          const images = row.original.logo ? [row.original.logo] : []
 
-          return url ? <Image src={url} alt='Logo' width={40} height={40} /> : 'N/A'
+          return <ImagesCell images={images} alt={`Logo de ${row.original.name}`} />
         },
         enableColumnFilter: false
       },
@@ -85,10 +88,11 @@ const BusinessTable: React.FC = () => {
         accessorKey: 'banner',
         header: 'Banner',
         size: 80,
-        Cell: ({ cell }) => {
-          const url = cell.getValue<string>()
+        Cell: ({ row }) => {
+          // Crear un array con solo el banner
+          const images = row.original.banner ? [row.original.banner] : []
 
-          return url ? <Image src={url} alt='Banner' width={40} height={40} /> : 'N/A'
+          return <ImagesCell images={images} alt={`Banner de ${row.original.name}`} />
         },
         enableColumnFilter: false
       },

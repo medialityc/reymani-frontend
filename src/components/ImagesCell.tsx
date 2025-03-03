@@ -11,12 +11,12 @@ import CloseIcon from '@mui/icons-material/Close'
 import BrokenImageIcon from '@mui/icons-material/BrokenImage'
 import ImageIcon from '@mui/icons-material/Image'
 
-interface ProductImagesCellProps {
+interface ImagesCellProps {
   images: string[]
   alt: string
 }
 
-const ProductImagesCell: React.FC<ProductImagesCellProps> = ({ images, alt }) => {
+const ImagesCell: React.FC<ImagesCellProps> = ({ images, alt }) => {
   const [open, setOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({})
@@ -347,4 +347,4 @@ const ProductImagesCell: React.FC<ProductImagesCellProps> = ({ images, alt }) =>
   )
 }
 
-export default ProductImagesCell
+export default ImagesCell

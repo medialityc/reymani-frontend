@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 
-import Image from 'next/image'
+// Eliminar el import de Image ya que usaremos ImagesCell
+// import Image from 'next/image'
 
 import type { MRT_ColumnDef, MRT_PaginationState, MRT_SortingState, MRT_Row } from 'material-react-table'
 import { MaterialReactTable } from 'material-react-table'
@@ -16,6 +17,7 @@ import { getUsersSearch, deleteUser } from '../../services/UserService'
 import ConfirmationDialog from '../../components/ConfirmationDialog' // <-- Nuevo import
 import CreateUserModal from './CreateUserModal' // <-- Nuevo import
 import UpdateUserModal from './UpdateUserModal' // <-- Nuevo import
+import ImagesCell from '../../components/ImagesCell' // Nuevo import
 
 interface User {
   id: number
@@ -69,16 +71,13 @@ const UsersTable: React.FC = () => {
         accessorKey: 'profilePicture',
         header: 'Foto',
         size: 80,
-        Cell: ({ cell }) => {
-          const imageUrl = cell.getValue<string>()
+        Cell: ({ row }) => {
+          // Crear un array con profilePicture para pasarlo al componente
+          const images = row.original.profilePicture ? [row.original.profilePicture] : []
 
-          return imageUrl ? (
-            <Image src={imageUrl} alt='Perfil' width={40} height={40} style={{ borderRadius: '50%' }} />
-          ) : (
-            'N/A'
-          )
+          return <ImagesCell images={images} alt={`${row.original.firstName} ${row.original.lastName}`} />
         },
-        enableEditing: false // No se edita la foto en este ejemplo
+        enableEditing: false
       },
       {
         accessorKey: 'firstName',

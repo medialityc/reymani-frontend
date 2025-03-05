@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 
-import { useRouter } from 'next/navigation'
-
 import { MaterialReactTable } from 'material-react-table'
 import type { MRT_ColumnDef, MRT_PaginationState, MRT_SortingState, MRT_Row } from 'material-react-table'
 import { MRT_Localization_ES } from 'material-react-table/locales/es'
@@ -49,8 +47,6 @@ const ProductsTable: React.FC = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [updateModalOpen, setUpdateModalOpen] = useState(false)
   const [productToUpdate, setProductToUpdate] = useState<Product | null>(null)
-
-  const router = useRouter()
 
   // Mapeo para la API
   const columnMapping: { [key: string]: string } = {
@@ -153,7 +149,7 @@ const ProductsTable: React.FC = () => {
         )
       }
     ],
-    [router]
+    []
   )
 
   const fetchData = async () => {

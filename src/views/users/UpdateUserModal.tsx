@@ -76,6 +76,46 @@ interface UpdateUserModalProps {
   onUserUpdated: () => void
 }
 
+/**
+ * Convierte una imagen (URL) en un objeto File utilizando canvas.
+ */
+const getFileFromImageUrl = (url: string, fileName: string, mimeType: string): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image()
+
+    // Necesario para cargar imágenes de otros dominios (si el servidor lo permite)
+    img.crossOrigin = 'anonymous'
+    img.src = url
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+
+      if (!ctx) {
+        return reject(new Error('No se pudo obtener el contexto del canvas'))
+      }
+
+      ctx.drawImage(img, 0, 0)
+      canvas.toBlob(blob => {
+        if (blob) {
+          const file = new File([blob], fileName, { type: mimeType })
+
+          resolve(file)
+        } else {
+          reject(new Error('No se pudo obtener el blob de la imagen'))
+        }
+      }, mimeType)
+    }
+
+    img.onerror = error => {
+      reject(error)
+    }
+  })
+}
+
 export default function UpdateUserModal({ open, handleClose, user, onUserUpdated }: UpdateUserModalProps) {
   const {
     register,
@@ -113,6 +153,7 @@ export default function UpdateUserModal({ open, handleClose, user, onUserUpdated
         password: '',
         profilePicture: undefined
       })
+      setDeletedImage(false)
     }
 
     handleClose()
@@ -132,6 +173,7 @@ export default function UpdateUserModal({ open, handleClose, user, onUserUpdated
       setValue('isConfirmed', isConfirmedBoolean)
       setValue('role', user.role)
       setValue('password', '')
+      setDeletedImage(false)
     }
   }, [user, setValue])
 
@@ -139,13 +181,24 @@ export default function UpdateUserModal({ open, handleClose, user, onUserUpdated
     setLoading(true)
     const formData = new FormData()
 
+    // Manejo de la imagen de perfil
     if (deletedImage) {
       // Crear y enviar un archivo vacío para indicar la eliminación de la imagen
       const emptyFile = new File([], '')
 
       formData.append('ProfilePicture', emptyFile)
     } else if (data.profilePicture && data.profilePicture.length > 0) {
+      // Se ha seleccionado una nueva imagen
       formData.append('ProfilePicture', data.profilePicture[0])
+    } else if (user?.profilePicture) {
+      // No se modificó la imagen: usar el canvas para convertir la imagen actual en un File
+      try {
+        const profilePicFile = await getFileFromImageUrl(user.profilePicture, 'profile-picture.jpg', 'image/jpeg')
+
+        formData.append('ProfilePicture', profilePicFile)
+      } catch (error) {
+        console.error('Error al convertir la imagen de perfil existente:', error)
+      }
     }
 
     formData.append('firstName', data.firstName)

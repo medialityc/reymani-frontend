@@ -93,3 +93,13 @@ export const getBusinessAdminUsers = async () => {
     throw new Error(error.response?.data?.message || 'Error al obtener administradores de negocio')
   }
 }
+
+export const getCouriersUsers = async () => {
+  try {
+    const response = await api.get('/users/search', { params: { roles: 1 } })
+
+    return response.data
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Error al obtener mensajeros')
+  }
+}

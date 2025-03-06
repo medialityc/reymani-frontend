@@ -67,7 +67,8 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
       { label: 'Usuarios', href: '/users', icon: <i className='ri-user-3-line' /> },
       { label: 'Mensajeros', href: '/couriers', icon: <i className='ri-motorbike-line' /> },
       { label: 'Tipos de Vehículos', href: '/vehicle-types', icon: <i className='ri-car-line' /> },
-      { label: 'Costos de Envío', href: '/shipping-costs', icon: <i className='ri-money-dollar-circle-line' /> }
+      { label: 'Costos de Envío', href: '/shipping-costs', icon: <i className='ri-money-dollar-circle-line' /> },
+      { label: 'Categorías de Producto', href: '/product-categories', icon: <i className='ri-product-hunt-line' /> }
     ]
   }
 

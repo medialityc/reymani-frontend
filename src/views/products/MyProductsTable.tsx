@@ -10,10 +10,10 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { toast } from 'react-toastify'
 
-import { getProductsSystemAdminSearch, deleteProduct } from '../../services/ProductService'
+import { getMyProductsSearch, deleteMyProduct } from '../../services/ProductService'
 import ConfirmationDialog from '../../components/ConfirmationDialog'
-import CreateProductModal from './CreateProductModal'
-import UpdateProductModal from './UpdateProductModal'
+import CreateProductModal from './CreateMyProductModal'
+import UpdateProductModal from './UpdateMyProductModal'
 import ImagesCell from '../../components/ImagesCell'
 import { getCapacityLabel } from '../../utils/capacityUtils'
 
@@ -35,7 +35,7 @@ interface Product {
   averageRating: number
 }
 
-const ProductsTable: React.FC = () => {
+const MyProductsTable: React.FC = () => {
   const [data, setData] = useState<Product[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -60,8 +60,7 @@ const ProductsTable: React.FC = () => {
     isActive: 'IsActive',
     averageRating: 'AverageRating',
     numberOfRatings: 'NumberOfRatings',
-    capacity: 'Capacity',
-    businessName: 'BusinessName'
+    capacity: 'Capacity'
   }
 
   const columns = useMemo<MRT_ColumnDef<Product>[]>(
@@ -75,7 +74,6 @@ const ProductsTable: React.FC = () => {
       },
       { accessorKey: 'name', header: 'Nombre' },
       { accessorKey: 'description', header: 'Descripción' },
-      { accessorKey: 'businessName', header: 'Negocio' },
       { accessorKey: 'categoryName', header: 'Categoría' },
       {
         accessorKey: 'price',
@@ -166,7 +164,7 @@ const ProductsTable: React.FC = () => {
         PageSize: pagination.pageSize
       }
 
-      const response = await getProductsSystemAdminSearch(filters)
+      const response = await getMyProductsSearch(filters)
 
       if (!response || !Array.isArray(response.data)) throw new Error('La API no devolvió datos válidos')
 
@@ -199,7 +197,7 @@ const ProductsTable: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (productToDelete) {
       try {
-        await deleteProduct(productToDelete.id)
+        await deleteMyProduct(productToDelete.id)
         toast.success('Producto eliminado correctamente')
         setConfirmOpen(false)
         setProductToDelete(null)
@@ -261,4 +259,4 @@ const ProductsTable: React.FC = () => {
   )
 }
 
-export default ProductsTable
+export default MyProductsTable

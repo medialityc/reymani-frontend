@@ -3,7 +3,7 @@ import React from 'react'
 import Typography from '@mui/material/Typography'
 
 import UpdateMyBusiness from '@/views/business/UpdateMyBusiness'
-import ProductsTable from '@/views/products/ProductsTable'
+import MyProductsTable from '@/views/products/MyProductsTable'
 
 export default function UsersPage() {
   return (
@@ -16,7 +16,7 @@ export default function UsersPage() {
         <Typography variant='h4' className='mb-4'>
           Mis Productos
         </Typography>
-        <ProductsTable />
+        <MyProductsTable />
       </div>
     </div>
   )

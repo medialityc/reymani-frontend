@@ -22,7 +22,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import LoadingButton from '@mui/lab/LoadingButton'
 
-import { updateProduct } from '../../services/ProductService'
+import { updateMyProduct } from '../../services/ProductService'
 import { getCategories } from '../../services/CategoryService'
 import { capacityOptions } from '../../utils/capacityUtils'
 
@@ -100,7 +100,12 @@ interface UpdateProductModalProps {
   onProductUpdated: () => void
 }
 
-export default function UpdateProductModal({ open, handleClose, product, onProductUpdated }: UpdateProductModalProps) {
+export default function UpdateMyProductModal({
+  open,
+  handleClose,
+  product,
+  onProductUpdated
+}: UpdateProductModalProps) {
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [existingImages, setExistingImages] = useState<string[]>([])
@@ -125,7 +130,7 @@ export default function UpdateProductModal({ open, handleClose, product, onProdu
       price: 0,
       discountPrice: null,
       categoryId: 0,
-      capacity: 0,
+      capacity: 0, // Cambiado a 0 para forzar la selección
       isAvailable: false,
       isActive: false
     }
@@ -284,7 +289,7 @@ export default function UpdateProductModal({ open, handleClose, product, onProdu
     }
 
     try {
-      await updateProduct(data.id, formData)
+      await updateMyProduct(data.id, formData)
       toast.success('Producto actualizado correctamente')
       onProductUpdated()
       handleModalClose()

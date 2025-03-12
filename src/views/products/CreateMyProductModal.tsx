@@ -22,9 +22,8 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import LoadingButton from '@mui/lab/LoadingButton'
 
-import { createProduct } from '../../services/ProductService'
+import { createMyProduct } from '../../services/ProductService'
 import { getCategories } from '../../services/CategoryService'
-import { getBusiness } from '../../services/BusinessService'
 import { capacityOptions } from '../../utils/capacityUtils'
 
 // Expresión regular para validar nombres y descripciones
@@ -33,10 +32,6 @@ const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,!?:;()[\]{}'"+-]+$/
 const schema = z.object({
   name: z.string().nonempty('El nombre es requerido').regex(nameRegex, 'El nombre contiene caracteres no válidos'),
   description: z.string().regex(nameRegex, 'La descripción contiene caracteres no válidos').or(z.literal('')),
-  businessId: z.preprocess(
-    val => Number(val),
-    z.number().refine(val => val > 0, { message: 'El negocio es requerido' })
-  ),
   price: z.preprocess(
     val => Number(val),
     z.number().positive('El precio debe ser mayor a 0').min(0.01, 'El precio mínimo es 0.01')
@@ -57,29 +52,21 @@ const schema = z.object({
     z.number().int().min(1, { message: 'La capacidad es requerida' }).max(3, 'Valor de capacidad no válido')
   ),
   isAvailable: z.boolean(),
-  isActive: z.boolean(),
   images: z.any().optional()
 })
 
 type FormValues = {
   name: string
   description: string
-  businessId: number
   price: number
   discountPrice: number | null
   categoryId: number
   capacity: number
   isAvailable: boolean
-  isActive: boolean
   images?: FileList
 }
 
 interface Category {
-  id: number
-  name: string
-}
-
-interface Business {
   id: number
   name: string
 }
@@ -90,10 +77,9 @@ interface CreateProductModalProps {
   onProductCreated: () => void
 }
 
-export default function CreateProductModal({ open, handleClose, onProductCreated }: CreateProductModalProps) {
+export default function CreateMyProductModal({ open, handleClose, onProductCreated }: CreateProductModalProps) {
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
-  const [businesses, setBusinesses] = useState<Business[]>([])
   const [nameError, setNameError] = useState<string | null>(null)
 
   const {
@@ -109,13 +95,11 @@ export default function CreateProductModal({ open, handleClose, onProductCreated
     defaultValues: {
       name: '',
       description: '',
-      businessId: 0,
       price: 0,
       discountPrice: null,
       categoryId: 0,
-      capacity: 0,
-      isAvailable: false,
-      isActive: false
+      capacity: 0, // Cambiamos el valor por defecto para forzar la selección
+      isAvailable: false
     }
   })
 
@@ -125,25 +109,18 @@ export default function CreateProductModal({ open, handleClose, onProductCreated
     imagesFiles && imagesFiles.length > 0 ? Array.from(imagesFiles).map(file => URL.createObjectURL(file)) : []
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCategories = async () => {
       try {
-        // Cargar categorías
-        const categoriesData = await getCategories()
+        const data = await getCategories()
 
-        setCategories(categoriesData || [])
-
-        // Cargar negocios (necesitamos crear este servicio)
-        const businessesData = await getBusiness()
-
-        setBusinesses(businessesData || [])
+        setCategories(data || [])
       } catch (error: any) {
-        console.error('Error al obtener datos:', error)
-        toast.error('Error al cargar datos iniciales')
+        console.error('Error al obtener categorías:', error)
       }
     }
 
     if (open) {
-      fetchData()
+      fetchCategories()
     }
   }, [open])
 
@@ -154,13 +131,11 @@ export default function CreateProductModal({ open, handleClose, onProductCreated
 
     formData.append('Name', data.name)
     formData.append('Description', data.description)
-    formData.append('BusinessId', String(data.businessId))
     formData.append('Price', String(data.price))
     formData.append('DiscountPrice', String(data.discountPrice || 0))
     formData.append('CategoryId', String(data.categoryId))
     formData.append('Capacity', String(data.capacity))
     formData.append('IsAvailable', String(data.isAvailable))
-    formData.append('IsActive', String(data.isActive))
 
     // Agregar imágenes al FormData
     if (data.images && data.images.length > 0) {
@@ -170,7 +145,7 @@ export default function CreateProductModal({ open, handleClose, onProductCreated
     }
 
     try {
-      await createProduct(formData)
+      await createMyProduct(formData)
       toast.success('Producto creado correctamente')
       reset()
       onProductCreated()
@@ -238,21 +213,6 @@ export default function CreateProductModal({ open, handleClose, onProductCreated
             helperText={errors.description?.message}
           />
           <TextField
-            select
-            label='Negocio'
-            fullWidth
-            margin='normal'
-            {...register('businessId', { valueAsNumber: true })}
-            error={!!errors.businessId}
-            helperText={errors.businessId?.message || 'Seleccione un negocio'}
-          >
-            {businesses.map(business => (
-              <MenuItem key={business.id} value={business.id}>
-                {business.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
             fullWidth
             label='Precio'
             margin='normal'
@@ -304,7 +264,6 @@ export default function CreateProductModal({ open, handleClose, onProductCreated
             ))}
           </TextField>
           <FormControlLabel control={<Checkbox {...register('isAvailable')} />} label='Disponible' sx={{ mt: 1 }} />
-          <FormControlLabel control={<Checkbox {...register('isActive')} />} label='Activo' sx={{ mt: 1, ml: 2 }} />
         </form>
       </DialogContent>
       <DialogActions>

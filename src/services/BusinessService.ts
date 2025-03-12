@@ -19,14 +19,17 @@ export const createBusiness = async (data: FormData) => {
   }
 }
 
-// Obtiene un negocio por ID
-export const getBusiness = async (id: number) => {
+/**
+ * Obtiene todos los negocios para el administrador del sistema
+ * @returns Lista de negocios
+ */
+export const getBusiness = async () => {
   try {
-    const response = await api.get(`/business/${id}`)
+    const response = await api.get('/business')
 
     return response.data
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Error al obtener negocio')
+    throw new Error(error.response?.data?.message || 'Error al obtener negocios')
   }
 }
 

@@ -155,12 +155,60 @@ export const assignCourierToOrder = async (orderId: number, courierId: number): 
       courierId
     })
 
-    console.log(orderId, courierId)
-    console.log(response)
+    // Si recibimos data: null, significa que es un 404 que ha sido interceptado
+    if (response.data === null) {
+      // Creamos un error personalizado para el 404
+      const error = new Error('El mensajero no posee un vehículo adecuado para esta orden')
+
+      ;(error as any).status = 404
+      throw error
+    }
 
     return response.data
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error assigning courier ${courierId} to order ${orderId}:`, error)
+
+    // Asegurarse de que el error se propague correctamente
+    throw error
+  }
+}
+
+// Mark order as completed
+export const completeOrder = async (orderId: number): Promise<any> => {
+  try {
+    const response = await api.put(`/orders/completed/${orderId}`)
+    
+    // Si recibimos data: null, significa que es un 404 que ha sido interceptado
+    if (response.data === null) {
+      const error = new Error('No se pudo completar la orden')
+
+      ;(error as any).status = 404
+      throw error
+    }
+    
+    return response.data
+  } catch (error: any) {
+    console.error(`Error completing order ${orderId}:`, error)
+    throw error
+  }
+}
+
+// Cancel order
+export const cancelOrder = async (orderId: number): Promise<any> => {
+  try {
+    const response = await api.delete(`/orders/cancel/${orderId}`)
+    
+    // Si recibimos data: null, significa que es un 404 que ha sido interceptado
+    if (response.data === null) {
+      const error = new Error('No se pudo cancelar la orden')
+
+      ;(error as any).status = 404
+      throw error
+    }
+    
+    return response.data
+  } catch (error: any) {
+    console.error(`Error cancelling order ${orderId}:`, error)
     throw error
   }
 }

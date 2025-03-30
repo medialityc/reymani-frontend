@@ -12,7 +12,8 @@ import {
   TextField,
   FormHelperText,
   CircularProgress,
-  Autocomplete
+  Autocomplete,
+  Alert
 } from '@mui/material'
 import { toast } from 'react-toastify'
 
@@ -39,11 +40,14 @@ export default function AssignCourierModal({ open, handleClose, orderId, onCouri
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     const fetchCouriers = async () => {
       if (open) {
         setLoading(true)
+        setError('')
+        setErrorMessage('')
 
         try {
           const response = await getCouriersUsers()
@@ -66,6 +70,7 @@ export default function AssignCourierModal({ open, handleClose, orderId, onCouri
   const handleChange = (_event: React.SyntheticEvent, newValue: User | null) => {
     setSelectedCourier(newValue)
     setError('')
+    setErrorMessage('')
   }
 
   const handleSubmit = async () => {
@@ -76,15 +81,24 @@ export default function AssignCourierModal({ open, handleClose, orderId, onCouri
     }
 
     setSubmitting(true)
+    setErrorMessage('')
 
     try {
       await assignCourierToOrder(orderId, selectedCourier.id)
       toast.success('Mensajero asignado correctamente')
       onCourierAssigned()
       handleClose()
-    } catch (error) {
-      console.error('Error al asignar mensajero:', error)
-      toast.error('Error al asignar mensajero')
+    } catch (err: any) {
+      console.error('Error al asignar mensajero:', err)
+
+      // Verificar si es nuestro error 404 personalizado
+      if (err.status === 404) {
+        setErrorMessage('El mensajero no posee un vehículo adecuado para esta orden')
+        toast.error('El mensajero no posee un vehículo adecuado para esta orden')
+      } else {
+        setErrorMessage('Error al asignar mensajero')
+        toast.error('Error al asignar mensajero')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -93,6 +107,7 @@ export default function AssignCourierModal({ open, handleClose, orderId, onCouri
   const handleCloseModal = () => {
     setSelectedCourier(null)
     setError('')
+    setErrorMessage('')
     handleClose()
   }
 
@@ -105,21 +120,28 @@ export default function AssignCourierModal({ open, handleClose, orderId, onCouri
             <CircularProgress />
           </div>
         ) : (
-          <FormControl fullWidth error={!!error} sx={{ mt: 2 }}>
-            <Autocomplete
-              id='courier-autocomplete'
-              options={couriers}
-              getOptionLabel={option => `${option.firstName} ${option.lastName} - ${option.phone}`}
-              renderInput={params => (
-                <TextField {...params} label='Mensajero' error={!!error} placeholder='Buscar mensajero...' />
-              )}
-              value={selectedCourier}
-              onChange={handleChange}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              fullWidth
-            />
-            {error && <FormHelperText>{error}</FormHelperText>}
-          </FormControl>
+          <>
+            {errorMessage && (
+              <Alert severity='error' sx={{ mb: 2, mt: 1 }}>
+                {errorMessage}
+              </Alert>
+            )}
+            <FormControl fullWidth error={!!error} sx={{ mt: 2 }}>
+              <Autocomplete
+                id='courier-autocomplete'
+                options={couriers}
+                getOptionLabel={option => `${option.firstName} ${option.lastName} - ${option.phone}`}
+                renderInput={params => (
+                  <TextField {...params} label='Mensajero' error={!!error} placeholder='Buscar mensajero...' />
+                )}
+                value={selectedCourier}
+                onChange={handleChange}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                fullWidth
+              />
+              {error && <FormHelperText>{error}</FormHelperText>}
+            </FormControl>
+          </>
         )}
       </DialogContent>
       <DialogActions>

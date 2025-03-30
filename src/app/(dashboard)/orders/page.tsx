@@ -8,7 +8,7 @@ const OrdersPage = () => {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Typography variant='h5' mb={2}>
+        <Typography variant='h2' mb={2}>
           Pedidos
         </Typography>
         <OrdersTable />

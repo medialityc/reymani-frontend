@@ -57,7 +57,7 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
     menuItems = [
       { label: 'Principal', href: '/', icon: <i className='ri-dashboard-horizontal-fill' /> },
       { label: 'Mi Negocio', href: '/my-business', icon: <i className='ri-home-4-line' /> },
-      { label: 'Pedidos', href: '/orders', icon: <i className='ri-shopping-bag-fill' /> }
+      { label: 'Pedidos', href: '/my-orders', icon: <i className='ri-shopping-bag-fill' /> }
     ]
   } else if (role === 'SystemAdmin') {
     menuItems = [

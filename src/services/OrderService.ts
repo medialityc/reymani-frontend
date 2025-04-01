@@ -15,6 +15,14 @@ export enum PaymentMethod {
   Cash = 1
 }
 
+// Product status enum for order items
+export enum ProductStatus {
+  Pending = 0,
+  Preparing = 1,
+  Ready = 2,
+  Delivered = 3
+}
+
 interface User {
   id: number
   profilePicture: string
@@ -59,6 +67,7 @@ interface OrderItem {
   id: number
   orderId: number
   product: Product
+  productStatus: ProductStatus
   quantity: number
 }
 
@@ -147,6 +156,18 @@ export const getPaymentMethodText = (method: PaymentMethod): string => {
   return methodMap[method] || 'Desconocido'
 }
 
+// Function to get text representation of product status
+export const getProductStatusText = (status: ProductStatus): string => {
+  const statusMap: Record<ProductStatus, string> = {
+    [ProductStatus.Pending]: 'Pendiente',
+    [ProductStatus.Preparing]: 'En preparación',
+    [ProductStatus.Ready]: 'Listo',
+    [ProductStatus.Delivered]: 'Entregado'
+  }
+
+  return statusMap[status] || 'Desconocido'
+}
+
 // Assign courier to order
 export const assignCourierToOrder = async (orderId: number, courierId: number): Promise<any> => {
   try {
@@ -177,7 +198,7 @@ export const assignCourierToOrder = async (orderId: number, courierId: number): 
 export const completeOrder = async (orderId: number): Promise<any> => {
   try {
     const response = await api.put(`/orders/completed/${orderId}`)
-    
+
     // Si recibimos data: null, significa que es un 404 que ha sido interceptado
     if (response.data === null) {
       const error = new Error('No se pudo completar la orden')
@@ -185,7 +206,7 @@ export const completeOrder = async (orderId: number): Promise<any> => {
       ;(error as any).status = 404
       throw error
     }
-    
+
     return response.data
   } catch (error: any) {
     console.error(`Error completing order ${orderId}:`, error)
@@ -197,7 +218,7 @@ export const completeOrder = async (orderId: number): Promise<any> => {
 export const cancelOrder = async (orderId: number): Promise<any> => {
   try {
     const response = await api.delete(`/orders/cancel/${orderId}`)
-    
+
     // Si recibimos data: null, significa que es un 404 que ha sido interceptado
     if (response.data === null) {
       const error = new Error('No se pudo cancelar la orden')
@@ -205,10 +226,34 @@ export const cancelOrder = async (orderId: number): Promise<any> => {
       ;(error as any).status = 404
       throw error
     }
-    
+
     return response.data
   } catch (error: any) {
     console.error(`Error cancelling order ${orderId}:`, error)
+    throw error
+  }
+}
+
+// Function to get orders in elaboration
+export const getOrdersInElaboration = async (filters: OrderSearchFilter): Promise<OrderSearchResponse> => {
+  try {
+    const response = await api.get('/orders/search-in-elaboration', { params: filters })
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching orders in elaboration:', error)
+    throw error
+  }
+}
+
+// Function to get order details for elaboration
+export const getOrderElaborateById = async (orderId: number): Promise<Order> => {
+  try {
+    const response = await api.get(`/orders/elaborate/${orderId}`)
+
+    return response.data
+  } catch (error) {
+    console.error(`Error fetching elaborate order ${orderId}:`, error)
     throw error
   }
 }

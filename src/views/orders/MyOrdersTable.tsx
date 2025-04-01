@@ -13,32 +13,23 @@ import { MaterialReactTable } from 'material-react-table'
 import { MRT_Localization_ES } from 'material-react-table/locales/es'
 import { Box, IconButton, Tooltip } from '@mui/material'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import CancelIcon from '@mui/icons-material/Cancel'
-
 import { toast } from 'react-toastify'
 
 import type { Order } from '../../services/OrderService'
 import {
-  getOrdersSearch,
-  getOrderById,
   OrderStatus,
   PaymentMethod,
   getOrderStatusText,
   getPaymentMethodText,
-  completeOrder,
-  cancelOrder
+  getOrdersInElaboration,
+  getOrderElaborateById
 } from '../../services/OrderService'
-import OrderItemsModal from './OrderItemsModal'
-import AssignCourierModal from './AssignCourierModal'
-import ConfirmationDialog from '../../components/ConfirmationDialog'
+import MyOrderItemsModal from './MyOrderItemsModal'
 
-const OrdersTable: React.FC = () => {
+const MyOrdersTable: React.FC = () => {
   const [data, setData] = useState<Order[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const [actionLoading, setActionLoading] = useState(false)
 
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
@@ -52,15 +43,6 @@ const OrdersTable: React.FC = () => {
   // Estado para el modal de detalles de orden
   const [detailsModalOpen, setDetailsModalOpen] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-
-  // Estado para el modal de asignar mensajero
-  const [assignCourierModalOpen, setAssignCourierModalOpen] = useState(false)
-  const [orderIdToAssign, setOrderIdToAssign] = useState<number | null>(null)
-
-  // Estados para los diálogos de confirmación
-  const [completeConfirmOpen, setCompleteConfirmOpen] = useState(false)
-  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false)
-  const [orderToAction, setOrderToAction] = useState<number | null>(null)
 
   // Mapeo para la API: convierte el accessorKey de la tabla al nombre de propiedad esperado
   const columnMapping: { [key: string]: string } = {
@@ -82,10 +64,7 @@ const OrdersTable: React.FC = () => {
           { text: 'En proceso', value: OrderStatus.InProcess.toString() },
           { text: 'En preparación', value: OrderStatus.InPreparation.toString() },
           { text: 'En recogida', value: OrderStatus.InPickup.toString() },
-          { text: 'En camino', value: OrderStatus.OnTheWay.toString() },
-          { text: 'Entregado', value: OrderStatus.Delivered.toString() },
-          { text: 'Completado', value: OrderStatus.Completed.toString() },
-          { text: 'Cancelado', value: OrderStatus.Cancelled.toString() }
+          { text: 'En camino', value: OrderStatus.OnTheWay.toString() }
         ]
       },
       {
@@ -152,43 +131,11 @@ const OrdersTable: React.FC = () => {
                 <VisibilityIcon />
               </IconButton>
             </Tooltip>
-            {/* Solo mostrar el botón de asignar mensajero cuando el estado es "En proceso" */}
-            {row.original.status === OrderStatus.InProcess && (
-              <Tooltip title='Asignar mensajero'>
-                <IconButton
-                  onClick={() => handleOpenAssignCourier(row.original.id)}
-                  color='primary'
-                  disabled={actionLoading}
-                >
-                  <PersonAddIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-            {/* Botón de completar orden (solo para órdenes en estado "Entregado") */}
-            {row.original.status === OrderStatus.Delivered && (
-              <Tooltip title='Completar orden'>
-                <IconButton
-                  onClick={() => handleCompleteOrder(row.original.id)}
-                  color='success'
-                  disabled={actionLoading}
-                >
-                  <CheckCircleIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-            {/* Botón de cancelar orden (para todas las órdenes excepto completadas y canceladas) */}
-            {row.original.status !== OrderStatus.Completed && row.original.status !== OrderStatus.Cancelled && (
-              <Tooltip title='Cancelar orden'>
-                <IconButton onClick={() => handleCancelOrder(row.original.id)} color='error' disabled={actionLoading}>
-                  <CancelIcon />
-                </IconButton>
-              </Tooltip>
-            )}
           </Box>
         )
       }
     ],
-    [actionLoading]
+    []
   )
 
   // Función para obtener datos de la API
@@ -233,7 +180,8 @@ const OrdersTable: React.FC = () => {
       // Para debugging - ver qué se está enviando a la API
       console.log('API request filters:', JSON.stringify(filters))
 
-      const response = await getOrdersSearch(filters)
+      // Usando la función del servicio para pedidos en elaboración
+      const response = await getOrdersInElaboration(filters)
 
       if (!response || !Array.isArray(response.data)) {
         throw new Error('La API no devolvió datos válidos')
@@ -242,8 +190,8 @@ const OrdersTable: React.FC = () => {
       setData(response.data)
       setTotalCount(response.totalCount ?? 0)
     } catch (error) {
-      console.error('Error al obtener órdenes:', error)
-      toast.error('Error al cargar las órdenes')
+      console.error('Error al obtener órdenes en elaboración:', error)
+      toast.error('Error al cargar las órdenes en elaboración')
       setData([])
       setTotalCount(0)
     } finally {
@@ -258,8 +206,8 @@ const OrdersTable: React.FC = () => {
   // Función para abrir modal de detalles
   const handleOpenDetails = async (row: MRT_Row<Order>) => {
     try {
-      // Intentamos obtener los datos detallados de la orden
-      const orderDetails = await getOrderById(row.original.id)
+      // Obtener datos detallados usando la función del servicio
+      const orderDetails = await getOrderElaborateById(row.original.id)
 
       if (orderDetails) {
         setSelectedOrder(orderDetails)
@@ -270,69 +218,6 @@ const OrdersTable: React.FC = () => {
     } catch (error) {
       console.error('Error al obtener detalles de la orden:', error)
       toast.error('Error al cargar los detalles de la orden')
-    }
-  }
-
-  // Función para abrir modal de asignar mensajero
-  const handleOpenAssignCourier = (orderId: number) => {
-    setOrderIdToAssign(orderId)
-    setAssignCourierModalOpen(true)
-  }
-
-  // Función para manejar cuando se asigna un mensajero
-  const handleCourierAssigned = () => {
-    fetchData() // Recargar datos para mostrar el mensajero asignado
-  }
-
-  // Función para abrir confirmación para completar orden
-  const handleCompleteOrder = (orderId: number) => {
-    setOrderToAction(orderId)
-    setCompleteConfirmOpen(true)
-  }
-
-  // Función para abrir confirmación para cancelar orden
-  const handleCancelOrder = (orderId: number) => {
-    setOrderToAction(orderId)
-    setCancelConfirmOpen(true)
-  }
-
-  // Función para confirmar completar orden
-  const handleConfirmComplete = async () => {
-    if (!orderToAction) return
-
-    setActionLoading(true)
-
-    try {
-      await completeOrder(orderToAction)
-      toast.success('Orden marcada como completada correctamente')
-      fetchData() // Recargar los datos
-    } catch (error) {
-      console.error('Error al completar la orden:', error)
-      toast.error('Error al completar la orden')
-    } finally {
-      setActionLoading(false)
-      setCompleteConfirmOpen(false)
-      setOrderToAction(null)
-    }
-  }
-
-  // Función para confirmar cancelar orden
-  const handleConfirmCancel = async () => {
-    if (!orderToAction) return
-
-    setActionLoading(true)
-
-    try {
-      await cancelOrder(orderToAction)
-      toast.success('Orden cancelada correctamente')
-      fetchData() // Recargar los datos
-    } catch (error) {
-      console.error('Error al cancelar la orden:', error)
-      toast.error('Error al cancelar la orden')
-    } finally {
-      setActionLoading(false)
-      setCancelConfirmOpen(false)
-      setOrderToAction(null)
     }
   }
 
@@ -362,38 +247,15 @@ const OrdersTable: React.FC = () => {
         localization={MRT_Localization_ES}
       />
       {selectedOrder && (
-        <OrderItemsModal open={detailsModalOpen} handleClose={() => setDetailsModalOpen(false)} order={selectedOrder} />
-      )}
-      {orderIdToAssign && (
-        <AssignCourierModal
-          open={assignCourierModalOpen}
-          handleClose={() => setAssignCourierModalOpen(false)}
-          orderId={orderIdToAssign}
-          onCourierAssigned={handleCourierAssigned}
+        <MyOrderItemsModal
+          open={detailsModalOpen}
+          handleClose={() => setDetailsModalOpen(false)}
+          order={selectedOrder}
+          onOrderUpdated={fetchData}
         />
       )}
-      <ConfirmationDialog
-        title='Completar orden'
-        text='¿Está seguro que desea marcar esta orden como completada?'
-        open={completeConfirmOpen}
-        handleClose={() => {
-          setCompleteConfirmOpen(false)
-          setOrderToAction(null)
-        }}
-        handleAgree={handleConfirmComplete}
-      />
-      <ConfirmationDialog
-        title='Cancelar orden'
-        text='¿Está seguro que desea cancelar esta orden? Esta acción no se puede deshacer.'
-        open={cancelConfirmOpen}
-        handleClose={() => {
-          setCancelConfirmOpen(false)
-          setOrderToAction(null)
-        }}
-        handleAgree={handleConfirmCancel}
-      />
     </>
   )
 }
 
-export default OrdersTable
+export default MyOrdersTable

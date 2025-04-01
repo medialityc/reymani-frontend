@@ -20,6 +20,7 @@ import {
 } from '@mui/material'
 
 import type { Order } from '../../services/OrderService'
+import { ProductStatus, getProductStatusText } from '../../services/OrderService'
 
 interface OrderItemsModalProps {
   open: boolean
@@ -62,6 +63,7 @@ export default function OrderItemsModal({ open, handleClose, order }: OrderItems
                     <TableCell>Cantidad</TableCell>
                     <TableCell align='right'>Precio Unitario</TableCell>
                     <TableCell align='right'>Subtotal</TableCell>
+                    <TableCell>Estado</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -73,6 +75,9 @@ export default function OrderItemsModal({ open, handleClose, order }: OrderItems
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell align='right'>${item.product.price.toFixed(2)}</TableCell>
                       <TableCell align='right'>${(item.product.price * item.quantity).toFixed(2)}</TableCell>
+                      <TableCell>
+                        {getProductStatusText((item.productStatus as ProductStatus) ?? ProductStatus.Pending)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

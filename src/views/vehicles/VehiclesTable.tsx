@@ -10,27 +10,31 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { toast } from 'react-toastify'
 
-import { getCouriersUsers, deleteUser } from '../../services/UserService'
+import { getVehiclesByCourierId, deleteVehicle } from '../../services/VehicleService'
 import ConfirmationDialog from '../../components/ConfirmationDialog'
-import CreateCourierModal from './CreateCourierModal'
-import UpdateCourierModal from './UpdateCourierModal'
+import CreateVehicleModal from './CreateVehicleModal'
+import UpdateVehicleModal from './UpdateVehicleModal'
 import ImagesCell from '../../components/ImagesCell'
-import VehiclesTable from '../vehicles/VehiclesTable'
 
-interface Courier {
+interface Vehicle {
   id: number
-  profilePicture: string
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  isActive: boolean
-  role: number
-  isConfirmed: boolean
+  userId: number
+  name: string
+  picture: string
+  description: string
+  vehicleTypeId: number
+  vehicleTypeName: string
+  isAvailable: boolean | string
+  isActive: boolean | string
 }
 
-const CouriersTable: React.FC = () => {
-  const [data, setData] = useState<Courier[]>([])
+interface VehiclesTableProps {
+  courierId: number
+  courierName?: string
+}
+
+const VehiclesTable: React.FC<VehiclesTableProps> = ({ courierId }) => {
+  const [data, setData] = useState<Vehicle[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -40,47 +44,48 @@ const CouriersTable: React.FC = () => {
   })
 
   const [sorting, setSorting] = useState<MRT_SortingState>([])
-  const [globalFilter, setGlobalFilter] = useState<string>('')
 
   // Estados para confirmación de eliminación
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [courierToDelete, setCourierToDelete] = useState<Courier | null>(null)
+  const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null)
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [updateModalOpen, setUpdateModalOpen] = useState(false)
-  const [courierToUpdate, setCourierToUpdate] = useState<Courier | null>(null)
+  const [vehicleToUpdate, setVehicleToUpdate] = useState<Vehicle | null>(null)
 
-  const columns = useMemo<MRT_ColumnDef<Courier>[]>(
+  const columns = useMemo<MRT_ColumnDef<Vehicle>[]>(
     () => [
       {
-        accessorKey: 'profilePicture',
-        header: 'Foto',
+        accessorKey: 'picture',
+        header: 'Imagen',
         size: 80,
         Cell: ({ row }) => {
-          const images = row.original.profilePicture ? [row.original.profilePicture] : []
+          const images = row.original.picture ? [row.original.picture] : []
 
-          return <ImagesCell images={images} alt={`${row.original.firstName} ${row.original.lastName}`} />
+          return <ImagesCell images={images} alt={row.original.name} />
         },
         enableEditing: false
       },
       {
-        accessorKey: 'firstName',
+        accessorKey: 'name',
         header: 'Nombre',
         muiEditTextFieldProps: { required: true }
       },
       {
-        accessorKey: 'lastName',
-        header: 'Apellido',
-        muiEditTextFieldProps: { required: true }
+        accessorKey: 'description',
+        header: 'Descripción',
+        muiEditTextFieldProps: { multiline: true, rows: 2 }
       },
       {
-        accessorKey: 'email',
-        header: 'Email',
-        muiEditTextFieldProps: { type: 'email', required: true }
+        accessorKey: 'vehicleTypeName',
+        header: 'Tipo de Vehículo',
+        enableEditing: false
       },
       {
-        accessorKey: 'phone',
-        header: 'Teléfono'
+        accessorKey: 'isAvailable',
+        header: 'Disponible',
+        Cell: ({ cell }) => (cell.getValue<boolean>() ? 'Sí' : 'No'),
+        enableEditing: false
       },
       {
         accessorKey: 'isActive',
@@ -88,14 +93,6 @@ const CouriersTable: React.FC = () => {
         Cell: ({ cell }) => (cell.getValue<boolean>() ? 'Sí' : 'No'),
         enableEditing: false
       },
-      {
-        accessorKey: 'isConfirmed',
-        header: 'Confirmado',
-        Cell: ({ cell }) => (cell.getValue<boolean>() ? 'Sí' : 'No'),
-        enableEditing: false
-      },
-
-      // Nueva columna de Acciones al final
       {
         header: 'Acciones',
         enableSorting: false,
@@ -121,22 +118,27 @@ const CouriersTable: React.FC = () => {
 
   // Función para obtener datos de la API
   const fetchData = async () => {
+    if (!courierId) return
+
     setIsLoading(true)
 
     try {
-      const response = await getCouriersUsers()
+      const response = await getVehiclesByCourierId(courierId)
 
       if (!response || !Array.isArray(response.data)) {
         throw new Error('La API no devolvió datos válidos')
       }
 
+      // Para depuración: imprime en la consola para verificar cómo vienen los datos
+      console.log('Vehículos obtenidos:', response.data)
+
       setData(response.data)
       setTotalCount(response.totalCount ?? 0)
     } catch (error) {
-      console.error('Error al obtener mensajeros:', error)
+      console.error('Error al obtener vehículos del mensajero:', error)
       setData([])
       setTotalCount(0)
-      toast.error('Error al cargar la lista de mensajeros')
+      toast.error('Error al cargar la lista de vehículos')
     } finally {
       setIsLoading(false)
     }
@@ -144,32 +146,32 @@ const CouriersTable: React.FC = () => {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [courierId])
 
   // Nueva función para abrir confirmación al eliminar
-  const handleOpenDelete = (row: MRT_Row<Courier>) => {
-    setCourierToDelete(row.original)
+  const handleOpenDelete = (row: MRT_Row<Vehicle>) => {
+    setVehicleToDelete(row.original)
     setConfirmOpen(true)
   }
 
   // Función para abrir ventana de edición
-  const handleOpenUpdate = (row: MRT_Row<Courier>) => {
-    setCourierToUpdate(row.original)
+  const handleOpenUpdate = (row: MRT_Row<Vehicle>) => {
+    setVehicleToUpdate(row.original)
     setUpdateModalOpen(true)
   }
 
   // Función para confirmar eliminación
   const handleConfirmDelete = async () => {
-    if (courierToDelete) {
+    if (vehicleToDelete) {
       try {
-        await deleteUser(courierToDelete.id)
-        toast.success('Mensajero eliminado correctamente')
+        await deleteVehicle(vehicleToDelete.id)
+        toast.success('Vehículo eliminado correctamente')
         setConfirmOpen(false)
-        setCourierToDelete(null)
+        setVehicleToDelete(null)
         fetchData()
       } catch (error) {
-        console.error('Error al eliminar mensajero:', error)
-        toast.error('Error al eliminar mensajero')
+        console.error('Error al eliminar vehículo:', error)
+        toast.error('Error al eliminar vehículo')
       }
     }
   }
@@ -182,51 +184,39 @@ const CouriersTable: React.FC = () => {
         state={{
           isLoading,
           pagination,
-          sorting,
-          globalFilter
+          sorting
         }}
         enableGlobalFilter
         enableDensityToggle={false}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
-        onGlobalFilterChange={setGlobalFilter}
         rowCount={totalCount}
         renderTopToolbarCustomActions={() => (
           <Button variant='contained' onClick={() => setCreateModalOpen(true)}>
-            Nuevo Mensajero
+            Nuevo Vehículo
           </Button>
-        )}
-        renderDetailPanel={({ row }) => (
-          <Box sx={{ p: 2, paddingRight: 5 }}>
-            <h3>
-              Vehículos de {row.original.firstName} {row.original.lastName}
-            </h3>
-            <VehiclesTable
-              courierId={row.original.id}
-              courierName={`${row.original.firstName} ${row.original.lastName}`}
-            />
-          </Box>
         )}
         localization={MRT_Localization_ES}
       />
-      {/* Modales para crear y actualizar mensajero */}
-      <CreateCourierModal
+      {/* Modales para crear y actualizar vehículo */}
+      <CreateVehicleModal
         open={createModalOpen}
         handleClose={() => setCreateModalOpen(false)}
-        onCourierCreated={fetchData}
+        courierId={courierId}
+        onVehicleCreated={fetchData}
       />
-      {courierToUpdate && (
-        <UpdateCourierModal
+      {vehicleToUpdate && (
+        <UpdateVehicleModal
           open={updateModalOpen}
           handleClose={() => setUpdateModalOpen(false)}
-          courier={courierToUpdate}
-          onCourierUpdated={fetchData}
+          vehicle={vehicleToUpdate}
+          onVehicleUpdated={fetchData}
         />
       )}
-      {/* Confirmación para eliminar mensajero */}
+      {/* Confirmación para eliminar vehículo */}
       <ConfirmationDialog
-        title='Eliminar mensajero'
-        text='¿Está seguro que desea eliminar este mensajero?'
+        title='Eliminar vehículo'
+        text='¿Está seguro que desea eliminar este vehículo?'
         open={confirmOpen}
         handleClose={() => setConfirmOpen(false)}
         handleAgree={handleConfirmDelete}
@@ -235,4 +225,4 @@ const CouriersTable: React.FC = () => {
   )
 }
 
-export default CouriersTable
+export default VehiclesTable

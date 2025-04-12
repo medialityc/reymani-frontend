@@ -56,7 +56,7 @@ const schema = z.object({
       invalid_type_error: 'Seleccione un tipo de vehículo válido'
     })
     .min(1, 'Seleccione un tipo de vehículo válido'),
-  picture: z.any().refine(files => files && files.length > 0, 'La imagen es requerida')
+  picture: z.any().optional() // Make picture optional
 })
 
 export default function CreateVehicleModal({
@@ -125,15 +125,15 @@ export default function CreateVehicleModal({
 
     // Adjuntar archivo si existe
     if (data.picture && data.picture.length > 0) {
-      formData.append('Picture', data.picture[0])
+      formData.append('picture', data.picture[0])
     }
 
-    formData.append('UserId', courierId.toString())
-    formData.append('Name', data.name)
-    formData.append('Description', data.description || '')
-    formData.append('IsAvailable', String(data.isAvailable))
-    formData.append('IsActive', String(data.isActive))
-    formData.append('VehicleTypeId', data.vehicleTypeId.toString())
+    formData.append('idCourier', courierId.toString())
+    formData.append('name', data.name)
+    formData.append('description', data.description || '')
+    formData.append('isAvailable', String(data.isAvailable))
+    formData.append('isActive', String(data.isActive))
+    formData.append('vehicleTypeId', data.vehicleTypeId.toString())
 
     try {
       await createVehicle(formData)

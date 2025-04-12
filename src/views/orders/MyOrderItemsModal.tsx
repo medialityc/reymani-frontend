@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
-import type { SelectChangeEvent } from '@mui/material'
 import {
   Dialog,
   DialogTitle,
@@ -17,16 +16,12 @@ import {
   TableRow,
   Paper,
   Typography,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
+  Box
 } from '@mui/material'
 import { toast } from 'react-toastify'
 
 import type { Order } from '../../services/OrderService'
-import { ProductStatus, getProductStatusText } from '../../services/OrderService'
+import { ProductStatus, getProductStatusText, confirmElaboratedOrderItem } from '../../services/OrderService'
 
 interface MyOrderItemsModalProps {
   open: boolean
@@ -36,68 +31,60 @@ interface MyOrderItemsModalProps {
 }
 
 export default function MyOrderItemsModal({ open, handleClose, order, onOrderUpdated }: MyOrderItemsModalProps) {
-  // State to track the status changes
-  const [itemStatuses, setItemStatuses] = useState<Record<number, ProductStatus>>({})
   const [isUpdating, setIsUpdating] = useState(false)
-
-  // Initialize itemStatuses with the current status from order items if not already set
-  useEffect(() => {
-    if (order && order.items) {
-      const initialStatuses: Record<number, ProductStatus> = {}
-
-      order.items.forEach(item => {
-        // Use productStatus if it exists in the item, otherwise default to Pending
-        initialStatuses[item.id] = (item.productStatus as ProductStatus) ?? ProductStatus.Pending
-      })
-      setItemStatuses(initialStatuses)
-    }
-  }, [order])
-
-  const handleStatusChange = (itemId: number, event: SelectChangeEvent<number>) => {
-    const newStatus = event.target.value as number
-
-    setItemStatuses(prev => ({
-      ...prev,
-      [itemId]: newStatus as ProductStatus
-    }))
-  }
-
-  const handleUpdateStatus = async (itemId: number) => {
-    if (!order) return
-
-    setIsUpdating(true)
-
-    try {
-      // Make API call to update the status
-      const response = await fetch(`/api/orders/update-product-status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          orderId: order.id,
-          itemId: itemId,
-          status: itemStatuses[itemId]
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error('Error al actualizar el estado del producto')
-      }
-
-      toast.success('Estado del producto actualizado correctamente')
-      onOrderUpdated() // Refresh the order data
-    } catch (error) {
-      console.error('Error updating product status:', error)
-      toast.error('Error al actualizar el estado del producto')
-    } finally {
-      setIsUpdating(false)
-    }
-  }
+  const [updatingItemId, setUpdatingItemId] = useState<number | null>(null)
 
   // Early return after all hooks
   if (!order) {
     return null
+  }
+
+  // Función para manejar la actualización del estado del producto
+  const handleUpdateStatus = async (itemId: number) => {
+    if (!order) return
+
+    setIsUpdating(true)
+    setUpdatingItemId(itemId)
+
+    try {
+      // Usar el servicio para actualizar el estado del ítem
+      await confirmElaboratedOrderItem(order.id, itemId)
+
+      toast.success('Estado del producto actualizado correctamente')
+      onOrderUpdated() // Refrescar los datos de la orden
+    } catch (error) {
+      console.error('Error al actualizar el estado del producto:', error)
+      toast.error('Error al actualizar el estado del producto')
+    } finally {
+      setIsUpdating(false)
+      setUpdatingItemId(null)
+    }
+  }
+
+  // Función para obtener el color para componentes UI según el estado
+  const getStatusColor = (status: ProductStatus) => {
+    switch (status) {
+      case ProductStatus.InPreparation:
+        return 'primary'
+      case ProductStatus.InPickup:
+        return 'secondary'
+      case ProductStatus.OnTheWay:
+        return 'success'
+      default:
+        return 'default'
+    }
+  }
+
+  // Función para obtener el texto del botón de acción según el estado
+  const getActionButtonText = (status: ProductStatus) => {
+    switch (status) {
+      case ProductStatus.InPreparation:
+        return 'Avanzar a Recogida'
+      case ProductStatus.InPickup:
+        return 'Avanzar a En Camino'
+      default:
+        return ''
+    }
   }
 
   return (
@@ -135,49 +122,37 @@ export default function MyOrderItemsModal({ open, handleClose, order, onOrderUpd
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {order.items.map(item => (
-                    <TableRow key={item.id}>
-                      <TableCell component='th' scope='row'>
-                        {item.product.name}
-                      </TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell align='right'>${item.product.price.toFixed(2)}</TableCell>
-                      <TableCell align='right'>${(item.product.price * item.quantity).toFixed(2)}</TableCell>
-                      <TableCell>
-                        <FormControl fullWidth size='small'>
-                          <InputLabel id={`status-select-label-${item.id}`}>Estado</InputLabel>
-                          <Select
-                            labelId={`status-select-label-${item.id}`}
-                            id={`status-select-${item.id}`}
-                            value={itemStatuses[item.id] || 0}
-                            label='Estado'
-                            onChange={e => handleStatusChange(item.id, e as SelectChangeEvent<number>)}
-                          >
-                            <MenuItem value={ProductStatus.Pending}>
-                              {getProductStatusText(ProductStatus.Pending)}
-                            </MenuItem>
-                            <MenuItem value={ProductStatus.Preparing}>
-                              {getProductStatusText(ProductStatus.Preparing)}
-                            </MenuItem>
-                            <MenuItem value={ProductStatus.Ready}>{getProductStatusText(ProductStatus.Ready)}</MenuItem>
-                            <MenuItem value={ProductStatus.Delivered}>
-                              {getProductStatusText(ProductStatus.Delivered)}
-                            </MenuItem>
-                          </Select>
-                        </FormControl>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant='contained'
-                          size='small'
-                          onClick={() => handleUpdateStatus(item.id)}
-                          disabled={isUpdating}
-                        >
-                          Actualizar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {order.items.map(item => {
+                    const productStatus = (item.productStatus as ProductStatus) ?? ProductStatus.InPreparation
+                    const buttonText = getActionButtonText(productStatus)
+                    const showActionButton = productStatus !== ProductStatus.OnTheWay
+                    const statusColor = getStatusColor(productStatus)
+
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell component='th' scope='row'>
+                          {item.product.name}
+                        </TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell align='right'>${item.product.price.toFixed(2)}</TableCell>
+                        <TableCell align='right'>${(item.product.price * item.quantity).toFixed(2)}</TableCell>
+                        <TableCell>{getProductStatusText(productStatus)}</TableCell>
+                        <TableCell>
+                          {showActionButton && (
+                            <Button
+                              variant='contained'
+                              color={statusColor as any}
+                              size='small'
+                              onClick={() => handleUpdateStatus(item.id)}
+                              disabled={isUpdating && updatingItemId === item.id}
+                            >
+                              {buttonText}
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>

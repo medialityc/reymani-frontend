@@ -76,7 +76,7 @@ export default function OrderItemsModal({ open, handleClose, order }: OrderItems
                       <TableCell align='right'>${item.product.price.toFixed(2)}</TableCell>
                       <TableCell align='right'>${(item.product.price * item.quantity).toFixed(2)}</TableCell>
                       <TableCell>
-                        {getProductStatusText((item.productStatus as ProductStatus) ?? ProductStatus.Pending)}
+                        {getProductStatusText((item.productStatus as ProductStatus) ?? ProductStatus.InPreparation)}
                       </TableCell>
                     </TableRow>
                   ))}

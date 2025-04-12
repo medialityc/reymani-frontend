@@ -17,10 +17,9 @@ export enum PaymentMethod {
 
 // Product status enum for order items
 export enum ProductStatus {
-  Pending = 0,
-  Preparing = 1,
-  Ready = 2,
-  Delivered = 3
+  InPreparation = 0,
+  InPickup = 1,
+  OnTheWay = 2
 }
 
 interface User {
@@ -159,10 +158,9 @@ export const getPaymentMethodText = (method: PaymentMethod): string => {
 // Function to get text representation of product status
 export const getProductStatusText = (status: ProductStatus): string => {
   const statusMap: Record<ProductStatus, string> = {
-    [ProductStatus.Pending]: 'Pendiente',
-    [ProductStatus.Preparing]: 'En preparación',
-    [ProductStatus.Ready]: 'Listo',
-    [ProductStatus.Delivered]: 'Entregado'
+    [ProductStatus.InPreparation]: 'En preparación',
+    [ProductStatus.InPickup]: 'En recogida',
+    [ProductStatus.OnTheWay]: 'En camino'
   }
 
   return statusMap[status] || 'Desconocido'
@@ -230,6 +228,43 @@ export const cancelOrder = async (orderId: number): Promise<any> => {
     return response.data
   } catch (error: any) {
     console.error(`Error cancelling order ${orderId}:`, error)
+    throw error
+  }
+}
+
+// Function to update order item status to next status
+export const confirmElaboratedOrderItem = async (orderId: number, orderItemId: number): Promise<any> => {
+  try {
+    // Log completo de los parámetros para depuración
+    console.log('confirmElaboratedOrderItem - Parámetros:', {
+      orderId: orderId,
+      orderItemId: orderItemId,
+      endpoint: `/orders/orderitems/${orderItemId}`
+    })
+
+    const requestBody = {
+      orderId: orderId,
+      orderItemId: orderItemId
+    }
+
+    // Log del cuerpo de la solicitud
+    console.log('confirmElaboratedOrderItem - Request Body:', JSON.stringify(requestBody))
+
+    const response = await api.put(`/orders/orderitems/${orderItemId}`, requestBody)
+
+    // Log de la respuesta
+    console.log('confirmElaboratedOrderItem - Respuesta:', response.data)
+
+    if (response.data === null) {
+      const error = new Error('No se pudo actualizar el estado del producto')
+
+      ;(error as any).status = 404
+      throw error
+    }
+
+    return response.data
+  } catch (error: any) {
+    console.error(`Error updating order item ${orderItemId} for order ${orderId}:`, error)
     throw error
   }
 }

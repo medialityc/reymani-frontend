@@ -177,9 +177,6 @@ const MyOrdersTable: React.FC = () => {
         PaymentMethod: paymentMethodValues || undefined
       }
 
-      // Para debugging - ver qué se está enviando a la API
-      console.log('API request filters:', JSON.stringify(filters))
-
       // Usando la función del servicio para pedidos en elaboración
       const response = await getOrdersInElaboration(filters)
 
@@ -190,8 +187,6 @@ const MyOrdersTable: React.FC = () => {
       setData(response.data)
       setTotalCount(response.totalCount ?? 0)
     } catch (error) {
-      console.error('Error al obtener órdenes en elaboración:', error)
-      toast.error('Error al cargar las órdenes en elaboración')
       setData([])
       setTotalCount(0)
     } finally {
@@ -216,7 +211,6 @@ const MyOrdersTable: React.FC = () => {
         toast.error('No se pudieron cargar los detalles de la orden')
       }
     } catch (error) {
-      console.error('Error al obtener detalles de la orden:', error)
       toast.error('Error al cargar los detalles de la orden')
     }
   }

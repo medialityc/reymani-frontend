@@ -82,9 +82,9 @@ export default function CreateProductCategoryModal({
       closeModal()
     } catch (error: any) {
       if (error.status === 409) {
-        setError('name', { 
-          type: 'manual', 
-          message: 'Ya existe una categoría con este nombre' 
+        setError('name', {
+          type: 'manual',
+          message: 'Ya existe una categoría con este nombre'
         })
       } else {
         toast.error('Error al crear la categoría de producto')

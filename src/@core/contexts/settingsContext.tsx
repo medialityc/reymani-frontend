@@ -2,7 +2,7 @@
 
 // React Imports
 import type { ReactNode } from 'react'
-import { createContext, useMemo, useState } from 'react'
+import { createContext, useMemo, useState, useEffect } from 'react'
 
 // Type Imports
 import type { Mode } from '@core/types'
@@ -59,10 +59,21 @@ export const SettingsProvider = (props: Props) => {
     JSON.stringify(props.settingsCookie) !== '{}' ? props.settingsCookie : updatedInitialSettings
   )
 
-  // State
+  // Estado inicial con preferencia por el tema guardado en localStorage si existe
   const [_settingsState, _updateSettingsState] = useState<Settings>(
     JSON.stringify(settingsCookie) !== '{}' ? settingsCookie : updatedInitialSettings
   )
+
+  // Carga el tema desde localStorage al iniciar, si está disponible
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem(themeConfig.modeStorageKey)
+
+      if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+        updateSettings({ mode: savedTheme as Mode }, { updateCookie: true })
+      }
+    }
+  }, []) // Se ejecuta solo una vez al montar el componente
 
   const updateSettings = (settings: Partial<Settings>, options?: UpdateSettingsOptions) => {
     const { updateCookie = true } = options || {}

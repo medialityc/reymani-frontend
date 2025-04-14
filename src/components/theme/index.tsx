@@ -77,11 +77,7 @@ const ThemeProvider = (props: Props) => {
 
   return (
     <AppRouterCacheProvider options={{ prepend: true }}>
-      <CssVarsProvider
-        theme={theme}
-        defaultMode={settings.mode}
-        modeStorageKey={`${themeConfig.templateName.toLowerCase().split(' ').join('-')}-mui-template-mode`}
-      >
+      <CssVarsProvider theme={theme} defaultMode={settings.mode} modeStorageKey={themeConfig.modeStorageKey}>
         <>
           <ModeChanger />
           <CssBaseline />

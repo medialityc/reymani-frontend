@@ -22,7 +22,6 @@ const ImagesCell: React.FC<ImagesCellProps> = ({ images, alt }) => {
   const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({})
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
-  // Si no hay imágenes, muestra un placeholder
   if (!images || images.length === 0) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
@@ -44,7 +43,7 @@ const ImagesCell: React.FC<ImagesCellProps> = ({ images, alt }) => {
   }
 
   const handleOpen = () => {
-    setTooltipOpen(false) // Cerrar el tooltip al abrir el diálogo
+    setTooltipOpen(false)
     setOpen(true)
   }
 
@@ -74,7 +73,6 @@ const ImagesCell: React.FC<ImagesCellProps> = ({ images, alt }) => {
     setImageErrors(prev => ({ ...prev, [index]: true }))
   }
 
-  // Si hay más de una imagen, muestra un indicador de la cantidad
   const multipleImagesIndicator =
     images.length > 1 ? (
       <Box
@@ -132,56 +130,39 @@ const ImagesCell: React.FC<ImagesCellProps> = ({ images, alt }) => {
       )
     }
 
-    try {
-      return fill ? (
-        <Image
-          src={src}
-          alt={altText}
-          fill={true}
-          style={{
-            ...style,
-            objectFit: 'contain' // Asegura que la imagen mantenga su relación de aspecto
-          }}
-          onError={() => handleImageError(index)}
-          unoptimized // Agregamos esto para evitar la optimización de Next.js que puede causar problemas con ciertos dominios
-          priority={priority}
-        />
-      ) : (
-        <Image
-          src={src}
-          alt={altText}
-          width={width || 40}
-          height={height || 40}
-          style={{
-            ...style,
-            width: 'auto', // Añadiendo width:auto cuando se especifica height
-            height: 'auto', // Añadiendo height:auto cuando se especifica width
-            maxWidth: '100%',
-            maxHeight: '100%'
-          }}
-          onError={() => handleImageError(index)}
-          unoptimized // Agregamos esto para evitar la optimización de Next.js
-          priority={priority}
-        />
-      )
-    } catch (error) {
-      handleImageError(index)
-
+    if (fill) {
       return (
-        <Box
-          sx={{
-            bgcolor: 'grey.200',
-            width: width || '100%',
-            height: height || '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+        <Image
+          src={src}
+          alt={altText}
+          fill
+          style={{
+            ...style,
+            objectFit: 'contain'
           }}
-        >
-          <BrokenImageIcon sx={{ color: 'grey.500' }} />
-        </Box>
+          onError={() => handleImageError(index)}
+          priority={priority}
+        />
       )
     }
+
+    return (
+      <Image
+        src={src}
+        alt={altText}
+        width={width || 40}
+        height={height || 40}
+        style={{
+          ...style,
+
+          // No se sobreescriben las props width/height; solo se limitan con maxWidth y maxHeight.
+          maxWidth: '100%',
+          maxHeight: '100%'
+        }}
+        onError={() => handleImageError(index)}
+        priority={priority}
+      />
+    )
   }
 
   return (
@@ -225,14 +206,7 @@ const ImagesCell: React.FC<ImagesCellProps> = ({ images, alt }) => {
         </Box>
       </ClickAwayListener>
 
-      {/* Diálogo para ver las imágenes ampliadas */}
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        maxWidth='md'
-        fullWidth
-        onClick={e => e.stopPropagation()} // Prevenir que el clic se propague
-      >
+      <Dialog open={open} onClose={handleClose} maxWidth='md' fullWidth onClick={e => e.stopPropagation()}>
         <Box sx={{ position: 'relative' }}>
           <DialogContent>
             <IconButton
@@ -331,7 +305,7 @@ const ImagesCell: React.FC<ImagesCellProps> = ({ images, alt }) => {
                       <ImageWithFallback
                         src={src}
                         altText={`${alt} - miniatura ${index + 1}`}
-                        index={index + images.length} // Usamos un índice diferente para las miniaturas
+                        index={index + images.length}
                         fill={true}
                         style={{ objectFit: 'cover' }}
                       />

@@ -160,8 +160,8 @@ export default function UpdateVehicleModal({ open, handleClose, vehicle, onVehic
   // Inicializar formulario con datos del vehículo
   useEffect(() => {
     if (vehicle && open) {
-      console.log('Inicializando formulario con vehículo:', vehicle);
-      
+      console.log('Inicializando formulario con vehículo:', vehicle)
+
       // Reinicia el formulario antes de establecer nuevos valores
       reset({
         name: '',
@@ -169,41 +169,37 @@ export default function UpdateVehicleModal({ open, handleClose, vehicle, onVehic
         isAvailable: true,
         isActive: true,
         vehicleTypeId: 0
-      });
-      
+      })
+
       setValue('name', vehicle.name)
       setValue('description', vehicle.description || '')
       setValue('vehicleTypeId', vehicle.vehicleTypeId)
 
       // Manejar booleanos que podrían venir en diferentes formatos
       const isAvailableBoolean = (() => {
-        if (typeof vehicle.isAvailable === 'boolean') return vehicle.isAvailable;
+        if (typeof vehicle.isAvailable === 'boolean') return vehicle.isAvailable
 
         if (typeof vehicle.isAvailable === 'string') {
-          return vehicle.isAvailable.toLowerCase() === 'true' || 
-                 vehicle.isAvailable === 'Sí' || 
-                 vehicle.isAvailable === '1';
+          return (
+            vehicle.isAvailable.toLowerCase() === 'true' || vehicle.isAvailable === 'Sí' || vehicle.isAvailable === '1'
+          )
         }
 
-        
-return Boolean(vehicle.isAvailable);
-      })();
+        return Boolean(vehicle.isAvailable)
+      })()
 
       const isActiveBoolean = (() => {
-        if (typeof vehicle.isActive === 'boolean') return vehicle.isActive;
+        if (typeof vehicle.isActive === 'boolean') return vehicle.isActive
 
         if (typeof vehicle.isActive === 'string') {
-          return vehicle.isActive.toLowerCase() === 'true' || 
-                 vehicle.isActive === 'Sí' || 
-                 vehicle.isActive === '1';
+          return vehicle.isActive.toLowerCase() === 'true' || vehicle.isActive === 'Sí' || vehicle.isActive === '1'
         }
 
-        
-return Boolean(vehicle.isActive);
-      })();
+        return Boolean(vehicle.isActive)
+      })()
 
-      console.log('Valores parseados:', { isAvailableBoolean, isActiveBoolean });
-      
+      console.log('Valores parseados:', { isAvailableBoolean, isActiveBoolean })
+
       setValue('isAvailable', isAvailableBoolean)
       setValue('isActive', isActiveBoolean)
       setDeletedImage(false)
@@ -261,7 +257,7 @@ return Boolean(vehicle.isActive);
       closeModal()
     } catch (error: any) {
       console.error('Error al actualizar vehículo:', error)
-      
+
       // Manejo específico para error 409 (Conflict) - Vehículo con nombre duplicado
       if (error.status === 409) {
         setError('name', {

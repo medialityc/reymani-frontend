@@ -40,7 +40,7 @@ export default function MyOrderItemsModal({ open, handleClose, order, onOrderUpd
   }
 
   // Función para manejar la actualización del estado del producto
-  const handleUpdateStatus = async (itemId: number) => {
+  const handleconfirmElaboratedOrderItem = async (itemId: number) => {
     if (!order) return
 
     setIsUpdating(true)
@@ -80,8 +80,6 @@ export default function MyOrderItemsModal({ open, handleClose, order, onOrderUpd
     switch (status) {
       case ProductStatus.InPreparation:
         return 'Avanzar a Recogida'
-      case ProductStatus.InPickup:
-        return 'Avanzar a En Camino'
       default:
         return ''
     }
@@ -125,7 +123,7 @@ export default function MyOrderItemsModal({ open, handleClose, order, onOrderUpd
                   {order.items.map(item => {
                     const productStatus = (item.productStatus as ProductStatus) ?? ProductStatus.InPreparation
                     const buttonText = getActionButtonText(productStatus)
-                    const showActionButton = productStatus !== ProductStatus.OnTheWay
+                    const showActionButton = productStatus === ProductStatus.InPreparation
                     const statusColor = getStatusColor(productStatus)
 
                     return (
@@ -143,7 +141,7 @@ export default function MyOrderItemsModal({ open, handleClose, order, onOrderUpd
                               variant='contained'
                               color={statusColor as any}
                               size='small'
-                              onClick={() => handleUpdateStatus(item.id)}
+                              onClick={() => handleconfirmElaboratedOrderItem(item.id)}
                               disabled={isUpdating && updatingItemId === item.id}
                             >
                               {buttonText}

@@ -68,7 +68,7 @@ const Login = ({}: { mode: Mode }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/')
+      router.replace('/')
     }
   }, [isAuthenticated, router])
 
@@ -90,11 +90,13 @@ const Login = ({}: { mode: Mode }) => {
         return
       }
 
-      login(response)
-      router.replace('/')
+      // Esperar a que se complete el proceso de login antes de redirigir
+      await login(response)
+
+      // Forzar redirección imperativa después del login
+      window.location.href = '/'
     } catch (error: any) {
       setErrorMessage(error.message)
-    } finally {
       setLoading(false)
     }
   }

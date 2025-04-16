@@ -8,13 +8,13 @@ import { saveToken, removeToken, getToken } from '@/utils/tokenStorage'
 const AuthContext = createContext<{
   isAuthenticated: boolean
   user: any
-  login: (response: { token: string; [key: string]: any }) => void
+  login: (response: { token: string; [key: string]: any }) => Promise<void>
   logout: () => void
   updateUser: (user: any) => void
 }>({
   isAuthenticated: false,
   user: null,
-  login: () => {},
+  login: async () => {},
   logout: () => {},
   updateUser: () => {}
 })
@@ -37,14 +37,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
-  const login = (response: { token: string; [key: string]: any }) => {
+  const login = async (response: { token: string; [key: string]: any }) => {
     saveToken(response.token)
     setIsAuthenticated(true)
 
-    // Opcional: cargar el usuario tras el login
-    getCurrentUser()
-      .then(data => setCurrentUser(data))
-      .catch(err => console.error(err))
+    try {
+      // Esperar a que se carguen los datos del usuario
+      const userData = await getCurrentUser()
+
+      setCurrentUser(userData)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const logout = () => {

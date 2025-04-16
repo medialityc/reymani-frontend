@@ -1,6 +1,7 @@
 export const saveToken = (token: string) => {
   if (typeof window !== 'undefined') {
-    document.cookie = `token=${token}; path=/`
+    // Configuración más robusta para la cookie
+    document.cookie = `token=${token}; path=/; SameSite=Lax; max-age=86400` // 24 horas de duración
   }
 }
 

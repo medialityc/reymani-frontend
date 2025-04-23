@@ -1,0 +1,29 @@
+name: Deploy to CapRover
+
+on:
+  push:
+    branches: ["dev"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file from secrets
+        run: |
+          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" >> .env
+          echo "NEXT_PUBLIC_MINIO_SERVER=${{ secrets.NEXT_PUBLIC_MINIO_SERVER }}" >> .env
+
+      - name: Create deploy.tar for CapRover
+        run: tar --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='deploy.tar' -cvf deploy.tar .
+
+      - name: Deploy to CapRover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAP_ROVER_SERVER_MD }}"
+          app: "${{ secrets.APP_NAME }}"
+          token: "${{ secrets.APP_TOKEN_CAP_ROVER }}"

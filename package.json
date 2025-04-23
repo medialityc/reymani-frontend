@@ -10,8 +10,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts",
-    "postinstall": "npm run build:icons"
+    "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
@@ -22,6 +21,7 @@
     "@mui/lab": "5.0.0-alpha.170",
     "@mui/material": "^5.15.19",
     "@mui/material-nextjs": "^5.15.11",
+    "@mui/utils": "5.17.1",
     "apexcharts": "^3.49.1",
     "axios": "^1.7.9",
     "classnames": "^2.5.1",

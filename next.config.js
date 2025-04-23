@@ -12,5 +12,6 @@ module.exports = {
         hostname: imageServerHostname
       }
     ]
-  }
+  },
+  output: 'standalone'
 }

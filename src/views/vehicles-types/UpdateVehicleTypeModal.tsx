@@ -40,13 +40,14 @@ interface UpdateVehicleTypeModalProps {
 // Esquema de validación
 const schema = z.object({
   name: z.string().nonempty('El nombre es requerido').max(50, 'El nombre no puede tener más de 50 caracteres'),
-  totalCapacity: z
-    .number({
-      required_error: 'La capacidad total es requerida',
-      invalid_type_error: 'La capacidad debe ser un número'
-    })
-    .positive('La capacidad debe ser un número positivo')
-    .int('La capacidad debe ser un número entero'),
+  totalCapacity: z.preprocess(
+    val => Number(val),
+    z
+      .number()
+      .positive('La capacidad debe ser un número positivo')
+      .int('La capacidad debe ser un número entero')
+      .refine(val => val > 0, { message: 'La capacidad total es requerida' })
+  ),
   isActive: z.boolean(),
   logo: z
     .any()

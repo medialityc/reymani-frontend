@@ -15,9 +15,22 @@ import '@assets/iconify-icons/generated-icons.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 
 export const metadata = {
-  title: 'Demo: Materio - NextJS Dashboard Free',
-  description:
-    'Develop next-level web apps with Materio Dashboard Free - NextJS. Now, updated with lightning-fast routing powered by MUI and App router.'
+  title: 'Reymani Backoffice',
+  description: 'Aplicación de administración de Reymani',
+
+  // OpenGraph metadata
+  openGraph: {
+    title: 'Reymani Backoffice',
+    description: 'Aplicación de administración de Reymani',
+    type: 'website'
+  },
+
+  // Twitter card metadata
+  twitter: {
+    card: 'summary',
+    title: 'Reymani Backoffice',
+    description: 'Aplicación de administración de Reymani'
+  }
 }
 
 const RootLayout = ({ children }: ChildrenType) => {

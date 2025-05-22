@@ -6,6 +6,7 @@ const imageServerHostname = imageServer.replace(/^https?:\/\//, '')
 
 module.exports = {
   images: {
+    domains: ['minio-api.mayabeque.mdialityc.com'],
     remotePatterns: [
       {
         protocol: imageServer.startsWith('https') ? 'https' : 'http',

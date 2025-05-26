@@ -418,12 +418,11 @@ export default function UpdateBusinessModal({
                 error={!!errors.adminId}
                 helperText={errors.adminId?.message || 'Seleccione un administrador'}
               >
-                <MenuItem value={0}>Seleccione un administrador</MenuItem>
                 {businessAdmins.map(admin => (
-                  <MenuItem key={admin.id} value={admin.id}>
-                    {admin.firstName} {admin.lastName}
-                  </MenuItem>
-                ))}
+    <MenuItem key={admin.id} value={admin.id}>
+      {admin.firstName} {admin.lastName}
+    </MenuItem>
+  ))}
               </TextField>
             )}
           />

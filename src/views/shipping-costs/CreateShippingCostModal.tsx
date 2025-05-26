@@ -177,7 +177,6 @@ export default function CreateShippingCostModal({
             error={provinceError !== ''}
             helperText={provinceError || 'Seleccione una provincia'}
           >
-            <MenuItem value={0}>Seleccione una provincia</MenuItem>
             {provinces.map(prov => (
               <MenuItem key={prov.id} value={prov.id}>
                 {prov.name}
@@ -195,7 +194,6 @@ export default function CreateShippingCostModal({
             error={!!errors.municipalityId}
             helperText={errors.municipalityId?.message || 'Seleccione un municipio'}
           >
-            <MenuItem value={0}>Seleccione un municipio</MenuItem>
             {(provinces.find(prov => prov.id === selectedProvinceId)?.municipalities || []).map(mun => (
               <MenuItem key={mun.id} value={mun.id}>
                 {mun.name}
@@ -212,7 +210,6 @@ export default function CreateShippingCostModal({
             error={!!errors.vehicleTypeId}
             helperText={errors.vehicleTypeId?.message || 'Seleccione un tipo de vehículo'}
           >
-            <MenuItem value={0}>Seleccione un tipo de vehículo</MenuItem>
             {vehicleTypes.map(vt => (
               <MenuItem key={vt.id} value={vt.id}>
                 {vt.name}

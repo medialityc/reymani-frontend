@@ -6,10 +6,14 @@ const imageServerHostname = imageServer.replace(/^https?:\/\//, '')
 
 module.exports = {
   images: {
+<<<<<<< Updated upstream
+=======
+    unoptimized: true,
+>>>>>>> Stashed changes
     remotePatterns: [
       {
         protocol: imageServer.startsWith('https') ? 'https' : 'http',
-        hostname: imageServerHostname
+        hostname: imageServerHostname,
       }
     ]
   },

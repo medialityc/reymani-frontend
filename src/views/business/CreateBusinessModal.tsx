@@ -275,12 +275,13 @@ export default function CreateBusinessModal({ open, handleClose, onBusinessCreat
             error={provinceError !== ''}
             helperText={provinceError || 'Seleccione una provincia'}
           >
-            <MenuItem value={0}>Seleccione una provincia</MenuItem>
             {provinces.map(prov => (
               <MenuItem key={prov.id} value={prov.id}>
                 {prov.name}
               </MenuItem>
             ))}
+
+
           </TextField>
           {/* Select para Municipio */}
           <TextField
@@ -293,7 +294,6 @@ export default function CreateBusinessModal({ open, handleClose, onBusinessCreat
             error={!!errors.municipalityId}
             helperText={errors.municipalityId?.message || 'Seleccione un municipio'}
           >
-            <MenuItem value={0}>Seleccione un municipio</MenuItem>
             {(provinces.find(prov => prov.id === selectedProvinceId)?.municipalities || []).map(mun => (
               <MenuItem key={mun.id} value={mun.id}>
                 {mun.name}
@@ -310,12 +310,11 @@ export default function CreateBusinessModal({ open, handleClose, onBusinessCreat
             error={!!errors.adminId}
             helperText={errors.adminId?.message || 'Seleccione un administrador'}
           >
-            <MenuItem value={0}>Seleccione un administrador</MenuItem>
             {businessAdmins.map(admin => (
-              <MenuItem key={admin.id} value={admin.id}>
-                {admin.firstName} {admin.lastName}
-              </MenuItem>
-            ))}
+    <MenuItem key={admin.id} value={admin.id}>
+      {admin.firstName} {admin.lastName}
+    </MenuItem>
+  ))}
           </TextField>
           <FormControlLabel control={<Checkbox {...register('isAvailable')} />} label='Disponible' />
           <FormControlLabel control={<Checkbox {...register('isActive')} />} label='Activo' />

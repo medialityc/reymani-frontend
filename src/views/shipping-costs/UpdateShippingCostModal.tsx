@@ -164,7 +164,6 @@ export default function UpdateShippingCostModal({
               readOnly: true
             }}
           >
-            <MenuItem value={0}>Seleccione una provincia</MenuItem>
             {provinces.map(prov => (
               <MenuItem key={prov.id} value={prov.id}>
                 {prov.name}
@@ -190,7 +189,6 @@ export default function UpdateShippingCostModal({
                 error={!!errors.municipalityId}
                 helperText={errors.municipalityId?.message}
               >
-                <MenuItem value={0}>Seleccione un municipio</MenuItem>
                 {provinces
                   .find(prov => prov.id === selectedProvinceId)
                   ?.municipalities.map(mun => (
@@ -220,7 +218,6 @@ export default function UpdateShippingCostModal({
                 error={!!errors.vehicleTypeId}
                 helperText={errors.vehicleTypeId?.message}
               >
-                <MenuItem value={0}>Seleccione un tipo de vehículo</MenuItem>
                 {vehicleTypes.map(type => (
                   <MenuItem key={type.id} value={type.id}>
                     {type.name}

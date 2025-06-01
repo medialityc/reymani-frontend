@@ -10,7 +10,7 @@ module.exports = {
     remotePatterns: [
       {
         protocol: imageServer.startsWith('https') ? 'https' : 'http',
-        hostname: imageServerHostname
+        hostname: imageServerHostname,
       }
     ]
   },

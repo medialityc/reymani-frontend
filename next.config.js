@@ -7,6 +7,7 @@ const imageServerHostname = imageServer.replace(/^https?:\/\//, '')
 module.exports = {
   images: {
     unoptimized: true,
+
     remotePatterns: [
       {
         protocol: imageServer.startsWith('https') ? 'https' : 'http',

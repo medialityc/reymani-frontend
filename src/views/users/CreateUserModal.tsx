@@ -15,7 +15,10 @@ import {
   Checkbox,
   FormControlLabel,
   Select,
-  MenuItem
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText
 } from '@mui/material'
 import { toast } from 'react-toastify'
 import { z } from 'zod'
@@ -70,7 +73,7 @@ const schema = z.object({
     .nonempty('El teléfono es requerido')
     .regex(/^[0-9]+$/, 'El teléfono solo debe contener números'),
   isActive: z.boolean(),
-  role: z.number(),
+  role: z.number().min(0, 'El rol es requerido').max(3, 'Rol no válido'),
   isConfirmed: z.boolean(),
   profilePicture: z.any().optional()
 })
@@ -85,9 +88,21 @@ export default function CreateUserModal({ open, handleClose, onUserCreated }: Cr
     resetField,
     watch,
     formState: { errors },
-    setError
+    setError,
+
   } = useForm<FormValues>({
-    resolver: zodResolver(schema)
+    resolver: zodResolver(schema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      password: '',
+      email: '',
+      phone: '',
+      isActive: true,
+      role: 0, // Valor por defecto para el rol
+      isConfirmed: true,
+      profilePicture: undefined
+    }
   })
 
   // Observar el campo de imagen para mostrar la preview
@@ -191,12 +206,24 @@ export default function CreateUserModal({ open, handleClose, onUserCreated }: Cr
             error={!!errors.phone}
             helperText={errors.phone?.message}
           />
-          <Select defaultValue={0} fullWidth {...register('role', { required: true })} sx={{ mt: 2 }}>
-            <MenuItem value={0}>Cliente</MenuItem>
-            <MenuItem value={1}>Mensajero</MenuItem>
-            <MenuItem value={2}>Administrador de Negocio</MenuItem>
-            <MenuItem value={3}>Administrador de Sistema</MenuItem>
-          </Select>
+
+          <FormControl fullWidth margin='normal' error={!!errors.role}>
+            <InputLabel id='role-label'>Rol</InputLabel>
+            <Select
+              labelId='role-label'
+              label='Rol'
+              defaultValue={0}
+              {...register('role', { required: true, valueAsNumber: true })}
+              error={!!errors.role}
+            >
+              <MenuItem value={0}>Cliente</MenuItem>
+              <MenuItem value={1}>Mensajero</MenuItem>
+              <MenuItem value={2}>Administrador de Negocio</MenuItem>
+              <MenuItem value={3}>Administrador de Sistema</MenuItem>
+            </Select>
+            {errors.role && <FormHelperText>{errors.role.message}</FormHelperText>}
+          </FormControl>
+
           <FormControlLabel control={<Checkbox {...register('isActive')} defaultChecked />} label='Activo' />
           <FormControlLabel control={<Checkbox {...register('isConfirmed')} defaultChecked />} label='Confirmado' />
           <br />

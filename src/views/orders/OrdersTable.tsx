@@ -11,7 +11,7 @@ import type {
 } from 'material-react-table'
 import { MaterialReactTable } from 'material-react-table'
 import { MRT_Localization_ES } from 'material-react-table/locales/es'
-import { Box, IconButton, Tooltip } from '@mui/material'
+import { Box, IconButton, Tooltip, Button } from '@mui/material'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -33,6 +33,7 @@ import {
 import OrderItemsModal from './OrderItemsModal'
 import AssignCourierModal from './AssignCourierModal'
 import ConfirmationDialog from '../../components/ConfirmationDialog'
+import CreateOrdersModal from './CreateOrdersModal'
 
 const OrdersTable: React.FC = () => {
   const [data, setData] = useState<Order[]>([])
@@ -336,8 +337,14 @@ const OrdersTable: React.FC = () => {
     }
   }
 
+  const [open, setOpen] = useState(false)
+
   return (
     <>
+
+     <>
+    
+  </>
       <MaterialReactTable
         columns={columns}
         data={data}
@@ -359,7 +366,18 @@ const OrdersTable: React.FC = () => {
         onGlobalFilterChange={setGlobalFilter}
         onColumnFiltersChange={setColumnFilters}
         rowCount={totalCount}
+        renderTopToolbarCustomActions={() => (
+          <Button variant="contained" onClick={() => setOpen(true)}>
+            Crear Pedido
+          </Button>
+        )}
         localization={MRT_Localization_ES}
+      />
+      {/* Modales para crear y actualizar pedido */}
+       <CreateOrdersModal
+        open={open}
+        handleClose={() => setOpen(false)}
+        onOrderCreated={fetchData}
       />
       {selectedOrder && (
         <OrderItemsModal open={detailsModalOpen} handleClose={() => setDetailsModalOpen(false)} order={selectedOrder} />

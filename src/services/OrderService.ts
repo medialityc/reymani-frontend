@@ -70,6 +70,16 @@ interface OrderItem {
   quantity: number
 }
 
+//  interfaz para el request body de creación de pedido
+export interface CreateOrderRequest {
+  shoppingCartId: number
+  customerId: number
+  customerAddressId: number
+  paymentMethod: PaymentMethod
+  requiresCourierService: boolean
+  courierId?: number
+}
+
 export interface Order {
   id: number
   paymentMethod: PaymentMethod
@@ -115,6 +125,35 @@ export const getOrdersSearch = async (filters: OrderSearchFilter): Promise<Order
   } catch (error) {
     console.error('Error fetching orders:', error)
     throw error
+  }
+}
+
+// Añade esta función al servicio
+export const createOrder = async (orderData: CreateOrderRequest): Promise<Order> => {
+  try {
+    const response = await api.post('/orders', orderData )
+
+    return response.data
+  } catch (error: any) {
+    console.error('Error creating order:', error)
+
+    // Manejo específico de errores
+    if (error.response) {
+      // Error de validación (400)
+      if (error.response.status === 400) {
+        const validationErrors = error.response.data.errors
+        const errorMessage = Object.values(validationErrors).flat().join('\n')
+
+        throw new Error(`Error de validación: ${errorMessage}`)
+      }
+
+      // Conflicto (409) - por ejemplo, carrito no encontrado
+      if (error.response.status === 409) {
+        throw new Error(error.response.data.message || 'No se pudo crear el pedido debido a un conflicto')
+      }
+    }
+
+    throw new Error('Error al crear el pedido')
   }
 }
 
@@ -165,6 +204,7 @@ export const getProductStatusText = (status: ProductStatus): string => {
 
   return statusMap[status] || 'Desconocido'
 }
+
 
 // Assign courier to order
 export const assignCourierToOrder = async (orderId: number, courierId: number): Promise<any> => {
